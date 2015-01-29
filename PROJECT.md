@@ -10,15 +10,17 @@ so on.
 
 Basically, we want to take something which enables data like this:
 
-![existing display example](existing display example.png)
+> ![existing display in twentyfifteen](2015-example.png)
 
-![nytimes example](nytimes example.png)
+
+> ![NYTimes example](nytimes-example.png)
 
 and make it work with output formats like these:
 
-![fusion example](fusion example.png)
+> ![Fusion example](fusion-example.png)
 
-![reuters example](reuters example.png)
+
+> ![Reuters example](reuters-example.png)
 
 
 ### Data Structures
@@ -54,14 +56,14 @@ and make it work with output formats like these:
       Photography  | Photographer            | Photography by %s
       Researcher   | Supporting Research     | Supporting research by %s
 
-  >> Questions: 
-  >>
-  >> - These terms, and the labels attached to them, should be modifiable
-  >>   through an API similar to the WordPress functions
-  >>   `register_post_type()` or `register_taxonomy()`.
-  >> - Can a set of labels sufficent for all expected use cases be
-  >>   generated? If not, it may be necessary to allow the list of labels
-  >>   themselves to be filtered. 
+  > Questions: 
+  >
+  > - These terms, and the labels attached to them, should be modifiable
+  >   through an API similar to the WordPress functions
+  >   `register_post_type()` or `register_taxonomy()`.
+  > - Can a set of labels sufficent for all expected use cases be
+  >   generated? If not, it may be necessary to allow the list of labels
+  >   themselves to be filtered. 
 
 - Theme templates can display this Role / "Co-Author" data in a number of
   ways, as in the following examples:
@@ -81,6 +83,7 @@ and make it work with output formats like these:
 - All of this data should be exposed in the WP_Query API, so that queries
   like:
 
+    ```
     // Get all posts where user ID 22 contributed photography,
     // video, or illustration:
     get_posts(
@@ -95,6 +98,7 @@ and make it work with output formats like these:
         'contributor' => array( 'alice', 'bob', 'charlie' ),
         'contributor_role' => array( 'author', 'contributor' ),
     );
+    ```
 
   can be used, and would work as would be expected.
 
@@ -104,6 +108,7 @@ and make it work with output formats like these:
   plugin can be merged into Co-Authors Plus. In the meantime, these
   functions would be shadowed with different names. Example:
 
+    ```
     // Get all coauthors on the current post, in the 'Additional Data
     // analysis' role:
     get_coauthors(
@@ -112,6 +117,7 @@ and make it work with output formats like these:
             'contributor_role' => 'additional-data-analysis',
         )
     );
+    ```
 
 
 ### Display functions
