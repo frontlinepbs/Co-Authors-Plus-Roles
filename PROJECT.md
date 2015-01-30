@@ -10,17 +10,17 @@ so on.
 
 Basically, we want to take something which enables data like this:
 
-> ![existing display in twentyfifteen](2015-example.png)
+> ![existing display in twentyfifteen](docs/2015-example.png)
 
 
-> ![NYTimes example](nytimes-example.png)
+> ![NYTimes example](docs/nytimes-example.png)
 
 and make it work with output formats like these:
 
-> ![Fusion example](fusion-example.png)
+> ![Fusion example](docs/fusion-example.png)
 
 
-> ![Reuters example](reuters-example.png)
+> ![Reuters example](docs/reuters-example.png)
 
 
 ### Data Structures
