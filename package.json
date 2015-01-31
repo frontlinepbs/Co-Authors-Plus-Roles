@@ -1,0 +1,23 @@
+{
+  "name": "co-authors-plus-roles",
+  "version": "0.0.1-alpha",
+  "description": "Extends the Co-Authors Plus plugin with extensible roles. Allows for adding contributors of multiple roles - \"Additional reporting by\", \"Additional research by\", or any other.",
+  "main": "co-authors-plus-roles.php",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github-goldenapples:goldenapples/Co-Authors-Plus-Roles.git"
+  },
+  "author": "",
+  "license": "GPL v2",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-wp-readme-to-markdown": "~0.8.0"
+  }
+}
