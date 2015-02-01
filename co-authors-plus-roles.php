@@ -74,3 +74,29 @@ add_action( 'admin_notices', array( $co_authors_plus_roles, 'admin_notices' ) );
 
 
 require( 'includes/query.php' );
+require( 'includes/contributor-roles.php' );
+require( 'includes/default-contributor-roles.php' );
+
+
+/**
+ * The Public API for this plugin.
+ *
+ * All functions that should be available in the global namespace are listed here.
+ * This would be done with `use` statements in PHP 5.6+.
+ *
+ */
+function register_contributor_role( $slug, $args = array() ) {
+	return CoAuthorsPlusRoles\register_contributor_role( $slug, $args );
+}
+function remove_contributor_role( $slug ) {
+	return CoAuthorsPlusRoles\remove_contributor_role( $slug );
+}
+function modify_contributor_role( $slug, $args = array() ) {
+	return CoAuthorsPlusRoles\modify_contributor_role( $slug, $args );
+}
+function get_contributor_roles() {
+	return CoAuthorsPlusRoles\get_contributor_roles();
+}
+
+
+

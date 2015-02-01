@@ -11,8 +11,7 @@
 	</php>
 	<testsuites>
 		<testsuite name="PluginTests">
-			<file>tests/test-author-queries.php</file>
-			<file>tests/test-manage-coauthors.php</file>
+			<directory prefix="test-" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>
