@@ -73,3 +73,4 @@ class CoAuthorsPlusRoles {
 add_action( 'admin_notices', array( $co_authors_plus_roles, 'admin_notices' ) );
 
 
+require( 'includes/query.php' );
