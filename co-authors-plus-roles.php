@@ -24,3 +24,52 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+$co_authors_plus_roles = new CoAuthorsPlusRoles();
+
+register_activation_hook( __FILE__, array( $co_authors_plus_roles, 'activate' ) );
+
+class CoAuthorsPlusRoles {
+
+	/**
+	 * On activation, check that Co-Authors Plus is installed and activated.
+	 * This plugin depends on some of the data structures introduced in CA+.
+	 */
+	public function activate() {
+		global $coauthors_plus;
+
+		/*
+		 * If Co-Authors Plus is not active, show a warning message and bail.
+		 */
+		if ( ! isset( $coauthors_plus ) ) {
+			update_option( 'co_authors_plus_roles__notices',
+				array(
+					'class' => 'error',
+					'message' => __( 'You must have Co-Authors Plus installed and activated first in order to use this plugin.' )
+				)
+			);
+			deactivate_plugins( __FILE__ );
+
+		}
+	}
+
+	/**
+	 * Show a message explaining why we're not activating this plugin.
+	 *
+	 * @return void
+	 */
+	public function admin_notices() {
+		$notices = get_option( 'co_authors_plus_roles__notices' );
+
+		if ( $notices && is_array( $notices ) ) {
+			echo '
+				<div id="message" class="' . $notices['class'] . '">
+					<p>' . $notices['message'] . '</p>
+				</div>';
+			delete_option( 'co_authors_plus_roles__notices' );
+		}
+	}
+}
+
+add_action( 'admin_notices', array( $co_authors_plus_roles, 'admin_notices' ) );
+
+
