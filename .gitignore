@@ -16,4 +16,5 @@ bower_components
 
 # build files
 node_modules/
-
+vendor/
+composer.lock

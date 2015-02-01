@@ -6,9 +6,13 @@
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	>
+	<php>
+		<const name="WP_TESTS_MULTISITE" value="1" />
+	</php>
 	<testsuites>
-		<testsuite>
-			<directory prefix="test-" suffix=".php">./tests/</directory>
+		<testsuite name="PluginTests">
+			<file>tests/test-author-queries.php</file>
+			<file>tests/test-manage-coauthors.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>
