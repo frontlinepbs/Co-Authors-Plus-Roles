@@ -30,7 +30,7 @@ function register_default_contributor_roles() {
 	);
 	register_contributor_role( 'contributing-author',
 		array(
-			'byline' => true,
+			'byline' => false,
 			'name' => __( 'Contributing Author' ),
 			'labels' => array(
 				'name_user_role_singular' => __( 'Contributing Author' ),
@@ -41,7 +41,7 @@ function register_default_contributor_roles() {
 	);
 	register_contributor_role( 'photographer',
 		array(
-			'byline' => true,
+			'byline' => false,
 			'name' => __( 'Photographer' ),
 			'labels' => array(
 				'name_user_role_singular' => __( 'Photographer' ),

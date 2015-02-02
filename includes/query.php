@@ -21,8 +21,9 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 	global $post, $post_ID, $coauthors_plus, $wpdb;
 
 	// Merge default query args with parameters
-	$defaults = array( 'contributor_role' => array( 'byline' ) );
-	$args = wp_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args,
+		array( 'contributor_role' => array( 'byline' ) )
+	);
 
 	$coauthors = array();
 

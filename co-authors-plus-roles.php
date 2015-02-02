@@ -76,7 +76,7 @@ add_action( 'admin_notices', array( $co_authors_plus_roles, 'admin_notices' ) );
 require( 'includes/query.php' );
 require( 'includes/contributor-roles.php' );
 require( 'includes/default-contributor-roles.php' );
-
+require( 'includes/contributor-roles-posts-relationships.php' );
 
 /**
  * The Public API for this plugin.

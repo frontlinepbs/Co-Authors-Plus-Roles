@@ -40,6 +40,7 @@ function register_contributor_role( $slug, $args = array() ) {
 	$name = ( isset( $args['name'] ) ) ? $args['name'] : ucwords( $slug );
 
 	$defaults = array(
+		'slug' => $slug,
 		'byline' => false,
 		'name' => __( $name ),
 		'labels' => array(
@@ -90,4 +91,20 @@ function modify_contributor_role( $slug, $name, $args ) {
 function get_contributor_roles() {
 	global $_wp_contributor_roles;
 	return $_wp_contributor_roles;
+}
+
+
+/**
+ * Get a single contributor role term by slug.
+ *
+ * Useful for retrieving labels or settings attached to roles.
+ *
+ * @return object Contributor role object
+ */
+function get_contributor_role( $slug ) {
+	global $_wp_contributor_roles;
+	if ( ! isset( $_wp_contributor_roles[ $slug ] ) )
+		return false;
+
+	return $_wp_contributor_roles[ $slug ];
 }
