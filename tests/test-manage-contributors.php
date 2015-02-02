@@ -43,6 +43,10 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$coauthors = get_coauthors( $this->author1_post1 );
 		$coauthors_this_plugin = CoAuthorsPlusRoles\get_coauthors( $this->author1_post1 );
 		$this->assertEquals( $coauthors, $coauthors_this_plugin );
+		$this->assertEquals( 1, count( $coauthors ) );
+
+		$all_credits = CoAuthorsPlusRoles\get_coauthors( $this->author1_post1, array( 'contributor_role' => 'any' ) );
+		$this->assertEquals( 2, count( $all_credits ) );
 
 	}
 }

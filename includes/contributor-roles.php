@@ -108,3 +108,22 @@ function get_contributor_role( $slug ) {
 
 	return $_wp_contributor_roles[ $slug ];
 }
+
+
+/**
+ * Get a list of the roles which are set as "byline roles".
+ *
+ * @return array Array of role slugs.
+ */
+function byline_roles() {
+	global $_wp_contributor_roles;
+
+	$byline_roles = array_filter( $_wp_contributor_roles,
+		function( $role ) {
+			return $role->byline === true;
+		}
+	);
+
+	return array_keys( $byline_roles );
+}
+

@@ -32,7 +32,11 @@ function set_contributor_on_post( $post_id, $author, $contributor_role = false )
 	if ( is_int( $author ) )
 		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
 
-	$coauthors_plus->add_coauthors( $post_id, array( $author->user_login ), true );
+	// Only create the byline term if the contributor role is:
+	//  - one of the byline roles, as set in register_contributor_role(), or
+	//  - unset, meaning they should default to primary author role.
+	if ( ! $contributor_role || in_array( $contributor_role, byline_roles() ) )
+		$coauthors_plus->add_coauthors( $post_id, array( $author->user_login ), true );
 
 	if ( ! $post_id || ! $author )
 		return false;
@@ -49,7 +53,6 @@ function set_contributor_on_post( $post_id, $author, $contributor_role = false )
 
 	if ( is_string( $contributor_role ) )
 		$contributor_role = get_contributor_role( $contributor_role );
-
 
 		update_post_meta( $post_id, 'cap-' . $contributor_role->slug, $author->ID );
 }
