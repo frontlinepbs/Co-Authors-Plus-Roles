@@ -117,8 +117,6 @@
 }
 
 
-.mce-textbox,
-.mce-checkbox i.mce-i-checkbox,
 #coauthor-select .query-results {
 	border: 1px solid #ddd;
 	-webkit-border-radius: 0;
@@ -129,9 +127,6 @@
 	transition: .05s all ease-in-out;
 }
 
-.mce-textbox:focus,
-.mce-textbox.mce-focus,
-.mce-checkbox:focus i.mce-i-checkbox,
 #coauthor-select .query-results:focus {
 	border-color: #5b9dd9;
 	-webkit-box-shadow: 0 0 2px rgba(30,140,190,0.8);
@@ -140,6 +135,8 @@
 
 #coauthor-select {
 	padding: 0 16px 50px;
+	position: relative;
+	min-height: 370px;
 }
 
 #coauthor-select-wrap.search-panel-visible #coauthor-selector {
@@ -251,7 +248,7 @@
 	left: 16px;
 	right: 16px;
 	bottom: 16px;
-	top: 205px;
+	top: 166px;
 }
 
 #coauthor-select li {
