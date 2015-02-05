@@ -77,6 +77,7 @@ require( 'includes/query.php' );
 require( 'includes/contributor-roles.php' );
 require( 'includes/default-contributor-roles.php' );
 require( 'includes/contributor-roles-posts-relationships.php' );
+require( 'includes/admin-edit-ui.php' );
 
 /**
  * The Public API for this plugin.
