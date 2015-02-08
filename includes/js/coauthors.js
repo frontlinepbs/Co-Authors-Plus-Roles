@@ -57,10 +57,10 @@ var coauthors;
 			rivers.elements.on( 'coauthors-river-select', coauthors.updateFields );
 
 			// Display 'hint' message when search field or 'query-results' box are focused
-			inputs.search.on( 'focus.wplink', function() {
+			inputs.search.on( 'focus.coauthors', function() {
 				inputs.queryNoticeTextDefault.hide();
 				inputs.queryNoticeTextHint.removeClass( 'screen-reader-text' ).show();
-			} ).on( 'blur.wplink', function() {
+			} ).on( 'blur.coauthors', function() {
 				inputs.queryNoticeTextDefault.show();
 				inputs.queryNoticeTextHint.addClass( 'screen-reader-text' ).hide();
 			} );
@@ -129,30 +129,22 @@ var coauthors;
 
 		update: function() {
 			// validate that an author ID and role are selected
+			// XXX this is p awful. work out a better UX for this form
 			if ( ! inputs.authorId.val() || ! inputs.role.val() ) {
 				alert( "something's not filled out!" );
-				console.log( inputs );
 				return false; // TODO: helpful error message
 			}
 
-			// Send selection to meta box
-			var newLi = $( '<li></li>' )
-				.appendTo ( $('#coauthors-select-list') );
-			newLi.attr( 'id', 'menu-item-' + inputs.authorId.val() )
+			var query = {
+					action: 'coauthor-sortable-template',
+					authorId: inputs.authorId.val(),
+					authorRole: inputs.role.val(),
+					'_ajax_coauthor_template_nonce': inputs.nonce.val()
+				};
 
-			newLiDl = $( '<dl class="menu-item-bar"></dl>' )
-				.appendTo( newLi );
-
-			newLiDraggable = $( '<dt class="menu-item-handle"></dt>' );
-
-			newLiDraggable.appendTo( newLiDl );
-
-			$( '<span class="item-title"></span>' ).appendTo( newLiDraggable )
-				.text( inputs.authorId.val() );
-			$( '<span class="item-controls"></span>' ).appendTo( newLiDraggable )
-				.append( '<span class="item-type"></span>' )
-				.text( inputs.role.val() );
-
+			$.post( ajaxurl, query, function( r ) {
+				$('#coauthors-select-list').append( r );
+			});
 			this.close();
 
 		},

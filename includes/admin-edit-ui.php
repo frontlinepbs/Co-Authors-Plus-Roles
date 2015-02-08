@@ -86,7 +86,7 @@ function coauthors_meta_box( $post ) {
 			}
 		}
 	} else {
-		$coauthors = get_coauthors();
+		$coauthors = get_coauthors( null, array( 'contributor_role' => 'all' ) );
 	}
 
 	echo '<h2 style="margin-bottom:0">' . __( 'Credits', 'co-authors-plus' ) . '</h2>';
@@ -96,27 +96,7 @@ function coauthors_meta_box( $post ) {
 
 	if ( $coauthors ) {
 		foreach ( $coauthors as $coauthor ) {
-			?>
-		<li id="menu-item-<?php echo $coauthor->ID; ?>" class="menu-item coauthor-sortable">
-			<dl class="menu-item-bar">
-				<dt class="menu-item-handle">
-					<span class="author-avatar">
-						<?php echo get_avatar( $coauthor, 40 ); ?>
-					</span>
-					<span class="author-info">
-						<span class="author-name"><?php echo $coauthor->display_name; ?></span>
-						<span class="author-email"><?php echo $coauthor->user_email; ?></span>
-						<span class="author-type"><?php echo str_replace( '-', ' ', $coauthor->type ); ?></span>
-					</span>
-					<span class="item-controls">
-						<span class="publishing-actions">
-							<a class="submitdeletion" href="#delete-<?php echo $coauthor->ID; ?>"><?php _e( 'Remove' ); ?></a>
-						</span>
-					</span>
-				</dt>
-			</dl>
-		</li>
-			<?php
+			template_coauthor_sortable( $coauthor );
 		}
 	}
 
@@ -128,6 +108,78 @@ function coauthors_meta_box( $post ) {
 }
 
 
+/**
+ * Output the sortable <li> for the coauthor meta box.
+ *
+ * Abstracted to its own function because the same markup needs to be returned
+ * from admin-ajax when a new author is added to a post.
+ *
+ * @param object $coauthor Coauthor to return. Should be extended with the contributor_role attribute.
+ * @param string $contributor_role Optional. If adding a new coauthor to a post, it won't already have this.
+ *                                 Passing this second parameter will set it on the coauthor.
+ */
+function template_coauthor_sortable( $coauthor, $contributor_role = null ) {
+	if ( $contributor_role )
+		$coauthor->contributor_role = $contributor_role;
+
+	if ( ! isset( $coauthor->type ) )
+		$coauthor->type = 'WP USER';
+	?>
+	<li id="menu-item-<?php echo $coauthor->ID; ?>" class="menu-item coauthor-sortable">
+		<dl class="menu-item-bar">
+			<dt class="menu-item-handle">
+				<span class="author-avatar">
+					<?php echo get_avatar( $coauthor, 40 ); ?>
+				</span>
+				<span class="author-info">
+					<span class="author-name"><?php echo $coauthor->display_name; ?></span>
+					<span class="author-email"><?php echo $coauthor->user_email; ?></span>
+					<span class="author-type"><?php echo str_replace( '-', ' ', $coauthor->type ); ?></span>
+				</span>
+				<?php if ( isset( $coauthor->contributor_role ) ) { ?>
+				<span class="contributor-role"><?php echo $coauthor->contributor_role; ?></span>
+				<?php } ?>
+				<span class="item-controls">
+					<span class="publishing-actions">
+						<a class="submitdeletion" href="#delete-<?php echo $coauthor->ID; ?>"><?php _e( 'Remove' ); ?></a>
+					</span>
+				</span>
+			</dt>
+		</dl>
+	</li>
+	<?php
+}
+
+
+/**
+ * Respond to a selected coauthor in modal window.
+ *
+ * Output the HTML markup for an <li> to add to the sortable list in the
+ * Co-Authors meta box.
+ */
+function ajax_template_coauthor_sortable() {
+	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_template_nonce' );
+	global $coauthors_plus;
+
+	$coauthor = $coauthors_plus->get_coauthor_by( 'id', intval( $_REQUEST['authorId'] ) );
+	$role = get_contributor_role( $_REQUEST['authorRole'] );
+
+	if ( ! $coauthor || ! $role )
+		wp_die( 'Missing required information.' );
+
+	$coauthor->contributor_role = $role->slug;
+
+	template_coauthor_sortable( $coauthor );
+	die(0);
+}
+
+add_action( 'wp_ajax_coauthor-sortable-template', 'CoAuthorsPlusRoles\ajax_template_coauthor_sortable' );
+
+
+/**
+ * Initialize admin UI styles and scripts.
+ *
+ */
 function enqueue_scripts() {
 	wp_enqueue_style( 'coauthor-select', \plugins_url( 'css/admin-ui.css', __FILE__ ) );
 	wp_enqueue_script( 'coauthor-select', \plugins_url( 'js/coauthors.js', __FILE__ ),

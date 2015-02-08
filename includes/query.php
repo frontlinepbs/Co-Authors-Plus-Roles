@@ -47,8 +47,10 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 				$coauthor_slug = preg_replace( '#^cap\-#', '', $coauthor->slug );
 				$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
 				// In case the user has been deleted while plugin was deactivated
-				if ( ! empty( $post_author ) )
+				if ( ! empty( $post_author ) ) {
+					$post_author->contributor_role = 'byline';
 					$coauthors[] = $post_author;
+				}
 			}
 		} else if ( ! $coauthors_plus->force_guest_authors ) {
 			if ( $post && $post_id == $post->ID ) {
@@ -82,7 +84,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 		// Because $wpdb->prepare would add slashes to my IN() clause...
 		$meta_key_in = "( '" . implode( "','", array_map( 'esc_sql', $roles_meta_keys ) ) . "' )";
 
-		$coauthor_ids = $wpdb->get_col(
+		$coauthor_ids = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key IN {$meta_key_in};",
 				array( $post_id )
@@ -90,7 +92,9 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 		);
 
 		foreach ( $coauthor_ids as $coauthor_id ) {
-			$coauthors[] = $coauthors_plus->get_coauthor_by( 'id', $coauthor_id );
+			$_coauthor = $coauthors_plus->get_coauthor_by( 'id', $coauthor_id->meta_value );
+			$_coauthor->contributor_role = strstr( $coauthor_id->meta_key, 4 );
+			$coauthors[] = $_coauthor;
 		}
 
 		// Now, get the author terms, in case of bylines or coauthors who were entered with CAP.
@@ -100,6 +104,8 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 			foreach ( $coauthor_terms as $coauthor ) {
 				$coauthor_slug = preg_replace( '#^cap\-#', '', $coauthor->slug );
 				$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
+				$post_author->contributor_role = 'byline';
+
 				// In case the user has been deleted while plugin was deactivated
 				if ( ! empty( $post_author ) )
 					$coauthors[] = $post_author;

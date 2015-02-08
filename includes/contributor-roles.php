@@ -103,6 +103,10 @@ function get_contributor_roles() {
  */
 function get_contributor_role( $slug ) {
 	global $_wp_contributor_roles;
+
+	if ( strpos( $slug, 'cap-' ) === 0 )
+		$slug = strstr( $slug, 4 );
+
 	if ( ! isset( $_wp_contributor_roles[ $slug ] ) )
 		return false;
 
