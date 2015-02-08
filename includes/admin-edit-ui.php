@@ -276,20 +276,26 @@ function coauthor_select_dialog() {
 
 
 /**
- * Populate the coauthors serach river through Ajax.
+ * Populate the coauthors search river through Ajax.
  *
  * Finds all coauthors available on a site who match a given string, in either
  * name, slug, or email address. Called on keyup from the coauthors search
  * field in the modal.
+ *
+ * If no search term is specified, returns the most frequent contributors on a
+ * blog. This is used to populate the initial list shown in the modal.
  */
 function search_coauthors() {
-	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_search_nonce' );
-
 	global $coauthors_plus;
 
-	$search_term = esc_sql( $_REQUEST['search'] );
+	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_search_nonce' );
 
-	if ( $coauthors = $coauthors_plus->search_authors( $search_term ) )
+	if ( isset( $_REQUEST['search'] ) )
+		$coauthors = $coauthors_plus->search_authors( sanitize_text_field( $_REQUEST['search'] ) );
+	else
+		$coauthors = get_top_authors();
+
+	if ( $coauthors )
 		wp_send_json( array_values( $coauthors ) );
 	else
 		wp_send_json_error( 'No authors were found.' );
@@ -298,6 +304,39 @@ function search_coauthors() {
 }
 
 add_action( 'wp_ajax_coauthor-select-ajax', 'CoAuthorsPlusRoles\search_coauthors' );
+
+
+/**
+ * Get the most prolific authors on a site.
+ *
+ * Used to populate the suggestion list when first opening the "Add Co-Author"
+ * modal box. NOTE: Only queries the "guest author" taxonomy, and uses the
+ * count of byline roles, not all contributions.
+ */
+function get_top_authors() {
+	global $coauthors_plus;
+
+	$all_published_authors = get_terms(
+		$coauthors_plus->coauthor_taxonomy,
+		array(
+			'orderby' => 'count',
+			'order' => 'DESC',
+			'hide_empty' => false,
+			'fields' => 'id=>slug'
+		)
+	);
+
+	if ( ! $all_published_authors )
+		return false;
+
+	$coauthors = array();
+
+	foreach ( $all_published_authors as $author_term )
+		$coauthors[] = $coauthors_plus->get_coauthor_by( 'user_nicename', $author_term );
+
+	// Because coauthors can include duplicates (in the case of linked accounts), uniq it first.
+	return array_unique( $coauthors, SORT_REGULAR );
+}
 
 
 /**
@@ -315,6 +354,9 @@ function update_coauthors_on_post( $post_id, $post ) {
 
 	if ( ! $coauthors_plus->is_post_type_enabled( $post->post_type ) )
 		return;
+
+	if ( ! isset( $POST['coauthors_save'] ) )
+		return false;
 
 	if ( $coauthors_plus->current_user_can_set_authors( $post ) ) {
 		// if current_user_can_set_authors and nonce valid

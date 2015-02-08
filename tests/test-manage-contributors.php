@@ -53,7 +53,6 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$all_credits = CoAuthorsPlusRoles\get_coauthors( $this->author1_post1, array( 'author_role' => 'any' ) );
 		$this->assertEquals( 1, count( $all_credits ) );
 
-
 	}
 
 	/**
@@ -62,6 +61,10 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 	public function test_admin_ui_author_roles_functions() {
 		global $coauthors_plus;
 
+		\CoAuthorsPlusRoles\set_contributor_on_post( $this->author1_post1, $this->editor1 );
+
+		$all_contributors = CoAuthorsPlusRoles\get_top_authors();
+		$this->assertEquals( count( $all_contributors ), 2 );
 
 	}
 }
