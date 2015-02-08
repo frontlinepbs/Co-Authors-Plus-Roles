@@ -15,10 +15,10 @@ namespace CoAuthorsPlusRoles;
  *
  * @param int|object $post_id Post to set author as "coauthor" on
  * @param object|string $author WP_User object, or nicename/user_login/slug
- * @param object|string $contributor_role Term or slug of contributor role to set. Defaults to "byline" if empty
+ * @param object|string $author_role Term or slug of contributor role to set. Defaults to "byline" if empty
  * @return bool True on success, false on failure (if any of the inputs are not acceptable).
  */
-function set_contributor_on_post( $post_id, $author, $contributor_role = false ) {
+function set_contributor_on_post( $post_id, $author, $author_role = false ) {
 	global $coauthors_plus, $wpdb;
 
 	if ( is_object( $post_id ) && isset( $post_id->ID ) )
@@ -33,9 +33,9 @@ function set_contributor_on_post( $post_id, $author, $contributor_role = false )
 		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
 
 	// Only create the byline term if the contributor role is:
-	//  - one of the byline roles, as set in register_contributor_role(), or
+	//  - one of the byline roles, as set in register_author_role(), or
 	//  - unset, meaning they should default to primary author role.
-	if ( ! $contributor_role || in_array( $contributor_role, byline_roles() ) )
+	if ( ! $author_role || in_array( $author_role, byline_roles() ) )
 		$coauthors_plus->add_coauthors( $post_id, array( $author->user_nicename ), true );
 
 	if ( ! $post_id || ! $author )
@@ -48,13 +48,13 @@ function set_contributor_on_post( $post_id, $author, $contributor_role = false )
 		)
 	);
 
-	if ( ! $contributor_role )
+	if ( ! $author_role )
 		return true;
 
-	if ( is_string( $contributor_role ) )
-		$contributor_role = get_contributor_role( $contributor_role );
+	if ( is_string( $author_role ) )
+		$author_role = get_author_role( $author_role );
 
-	update_post_meta( $post_id, 'cap-' . $contributor_role->slug, $author->ID );
+	update_post_meta( $post_id, 'cap-' . $author_role->slug, $author->ID );
 }
 
 

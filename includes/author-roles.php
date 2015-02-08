@@ -14,16 +14,16 @@ namespace CoAuthorsPlusRoles;
  * Called on init. Registers the default roles.
  *
  */
-function create_contributor_roles() {
-	global $_wp_contributor_roles;
-	$_wp_contributor_roles = array();
+function create_author_roles() {
+	global $_wp_author_roles;
+	$_wp_author_roles = array();
 
-	register_default_contributor_roles();
+	register_default_author_roles();
 
-	do_action( 'contributor_roles_created' );
+	do_action( 'author_roles_created' );
 }
 
-add_action( 'init', '\CoAuthorsPlusRoles\create_contributor_roles', 0 );
+add_action( 'init', '\CoAuthorsPlusRoles\create_author_roles', 0 );
 
 
 
@@ -34,8 +34,8 @@ add_action( 'init', '\CoAuthorsPlusRoles\create_contributor_roles', 0 );
  * @param array $args Overrides to define this role
  * @return object the created WP_Contributor_Role object
  */
-function register_contributor_role( $slug, $args = array() ) {
-	global $_wp_contributor_roles;
+function register_author_role( $slug, $args = array() ) {
+	global $_wp_author_roles;
 
 	$name = ( isset( $args['name'] ) ) ? $args['name'] : ucwords( $slug );
 
@@ -52,7 +52,7 @@ function register_contributor_role( $slug, $args = array() ) {
 
 	$args = wp_parse_args( $args, $defaults );
 
-	$_wp_contributor_roles[ $slug ] = (object) $args;
+	$_wp_author_roles[ $slug ] = (object) $args;
 }
 
 
@@ -62,24 +62,24 @@ function register_contributor_role( $slug, $args = array() ) {
  * @param string $slug Slug of role to remove
  * @return void
  */
-function remove_contributor_role( $slug ) {
-	global $_wp_contributor_roles;
+function remove_author_role( $slug ) {
+	global $_wp_author_roles;
 
-	unset( $_wp_contributor_roles[ $slug ] );
+	unset( $_wp_author_roles[ $slug ] );
 }
 
 
 /**
  * Modifies a previously registered "contributor role" for the site.
  *
- * An alias for register_contributor_role.
+ * An alias for register_author_role.
  *
  * @param string $slug Slug of role to remove
  * @param array $args Overrides to define this role
  * @return object the created WP_Contributor_Role object
  */
-function modify_contributor_role( $slug, $name, $args ) {
-	register_contributor_role( $slug, $name, $args );
+function modify_author_role( $slug, $name, $args ) {
+	register_author_role( $slug, $name, $args );
 }
 
 
@@ -88,9 +88,9 @@ function modify_contributor_role( $slug, $name, $args ) {
  *
  * @return array Array of all roles ad their arguments.
  */
-function get_contributor_roles() {
-	global $_wp_contributor_roles;
-	return $_wp_contributor_roles;
+function get_author_roles() {
+	global $_wp_author_roles;
+	return $_wp_author_roles;
 }
 
 
@@ -101,16 +101,16 @@ function get_contributor_roles() {
  *
  * @return object Contributor role object
  */
-function get_contributor_role( $slug ) {
-	global $_wp_contributor_roles;
+function get_author_role( $slug ) {
+	global $_wp_author_roles;
 
 	if ( strpos( $slug, 'cap-' ) === 0 )
 		$slug = strstr( $slug, 4 );
 
-	if ( ! isset( $_wp_contributor_roles[ $slug ] ) )
+	if ( ! isset( $_wp_author_roles[ $slug ] ) )
 		return false;
 
-	return $_wp_contributor_roles[ $slug ];
+	return $_wp_author_roles[ $slug ];
 }
 
 
@@ -120,9 +120,9 @@ function get_contributor_role( $slug ) {
  * @return array Array of role slugs.
  */
 function byline_roles() {
-	global $_wp_contributor_roles;
+	global $_wp_author_roles;
 
-	$byline_roles = array_filter( $_wp_contributor_roles,
+	$byline_roles = array_filter( $_wp_author_roles,
 		function( $role ) {
 			return $role->byline === true;
 		}

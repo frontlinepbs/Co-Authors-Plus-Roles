@@ -74,9 +74,9 @@ add_action( 'admin_notices', array( $co_authors_plus_roles, 'admin_notices' ) );
 
 
 require( 'includes/query.php' );
-require( 'includes/contributor-roles.php' );
-require( 'includes/default-contributor-roles.php' );
-require( 'includes/contributor-roles-posts-relationships.php' );
+require( 'includes/author-roles.php' );
+require( 'includes/default-author-roles.php' );
+require( 'includes/author-roles-posts-relationships.php' );
 require( 'includes/admin-edit-ui.php' );
 
 /**
@@ -86,17 +86,17 @@ require( 'includes/admin-edit-ui.php' );
  * This would be done with `use` statements in PHP 5.6+.
  *
  */
-function register_contributor_role( $slug, $args = array() ) {
-	return CoAuthorsPlusRoles\register_contributor_role( $slug, $args );
+function register_author_role( $slug, $args = array() ) {
+	return CoAuthorsPlusRoles\register_author_role( $slug, $args );
 }
-function remove_contributor_role( $slug ) {
-	return CoAuthorsPlusRoles\remove_contributor_role( $slug );
+function remove_author_role( $slug ) {
+	return CoAuthorsPlusRoles\remove_author_role( $slug );
 }
-function modify_contributor_role( $slug, $args = array() ) {
-	return CoAuthorsPlusRoles\modify_contributor_role( $slug, $args );
+function modify_author_role( $slug, $args = array() ) {
+	return CoAuthorsPlusRoles\modify_author_role( $slug, $args );
 }
-function get_contributor_roles() {
-	return CoAuthorsPlusRoles\get_contributor_roles();
+function get_author_roles() {
+	return CoAuthorsPlusRoles\get_author_roles();
 }
 
 

@@ -14,14 +14,14 @@ namespace CoAuthorsPlusRoles;
  *
  * @param int $post_ID ID of post to check. Defaults to the current post.
  * @param arr $args    Query options. Available options are:
- *						contributor_role array of roles to query in
+ *						author_role array of roles to query in
  * @return arr Array of authors
  */
 function get_coauthors( $post_id = 0, $args = array() ) {
 	global $post, $post_ID, $coauthors_plus, $wpdb;
 
 	// Merge default query args with parameters
-	$args = wp_parse_args( $args, array( 'contributor_role' => 'byline' ) );
+	$args = wp_parse_args( $args, array( 'author_role' => 'byline' ) );
 
 	$coauthors = array();
 
@@ -36,7 +36,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 		return;
 
 	// Querying for "bylines" (the default) should return the same results as in CAP
-	if ( $args['contributor_role'] === 'byline' ) {
+	if ( $args['author_role'] === 'byline' ) {
 		/*
 		 * This query is the same as the one from Co-Authors Plus, because any co-authors
 		 * added in byline roles should have an author term set.
@@ -48,7 +48,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 				$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
 				// In case the user has been deleted while plugin was deactivated
 				if ( ! empty( $post_author ) ) {
-					$post_author->contributor_role = 'byline';
+					$post_author->author_role = 'byline';
 					$coauthors[] = $post_author;
 				}
 			}
@@ -65,20 +65,20 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 		/*
 		 * Any other queries need to be performed using postmeta fields.
 		 *
-		 * Passing the string 'any' or false to 'contributor_role' should get anyone, regardless of role.
+		 * Passing the string 'any' or false to 'author_role' should get anyone, regardless of role.
 		 * Passing a string or array of strings should get all roles with those slugs.
 		 */
-		if ( $args['contributor_role'] === 'any' || ! $args['contributor_role'] ) {
-			$contributor_roles = wp_list_pluck( get_contributor_roles(), 'slug' );
-		} else if ( is_string( $args['contributor_role'] ) ) {
-			$contributor_roles = array( $args['contributor_role'] );
+		if ( $args['author_role'] === 'any' || ! $args['author_role'] ) {
+			$author_roles = wp_list_pluck( get_author_roles(), 'slug' );
+		} else if ( is_string( $args['author_role'] ) ) {
+			$author_roles = array( $args['author_role'] );
 		} else {
-			$contributor_roles = $args['contributor_role'];
+			$author_roles = $args['author_role'];
 		}
 
 		$roles_meta_keys = array_map(
 			function( $term ) { return 'cap-' . $term; },
-			array_filter( $contributor_roles, 'CoAuthorsPlusRoles\get_contributor_role' )
+			array_filter( $author_roles, 'CoAuthorsPlusRoles\get_author_role' )
 		);
 
 		// Because $wpdb->prepare would add slashes to my IN() clause...
@@ -93,7 +93,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 
 		foreach ( $coauthor_ids as $coauthor_id ) {
 			$_coauthor = $coauthors_plus->get_coauthor_by( 'id', $coauthor_id->meta_value );
-			$_coauthor->contributor_role = strstr( $coauthor_id->meta_key, 4 );
+			$_coauthor->author_role = strstr( $coauthor_id->meta_key, 4 );
 			$coauthors[] = $_coauthor;
 		}
 
@@ -104,7 +104,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 			foreach ( $coauthor_terms as $coauthor ) {
 				$coauthor_slug = preg_replace( '#^cap\-#', '', $coauthor->slug );
 				$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
-				$post_author->contributor_role = 'byline';
+				$post_author->author_role = 'byline';
 
 				// In case the user has been deleted while plugin was deactivated
 				if ( ! empty( $post_author ) )

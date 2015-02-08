@@ -2,9 +2,9 @@
 /**
  * Provide a default set of contributor roles.
  *
- * These can be filtered by hooking into 'contributor_roles_created'
- * and calling `register_contributor_role()`, `remove_contributor_role()`, or
- * `modify_contributor_role()`.
+ * These can be filtered by hooking into 'author_roles_created'
+ * and calling `register_author_role()`, `remove_author_role()`, or
+ * `modify_author_role()`.
  */
 
 namespace CoAuthorsPlusRoles;
@@ -16,8 +16,8 @@ namespace CoAuthorsPlusRoles;
  * XXX: Needs user testing. This set of roles should be vetted by someone with
  * editorial experience, and adjusted to fit a common set of use cases.
  */
-function register_default_contributor_roles() {
-	register_contributor_role( 'author',
+function register_default_author_roles() {
+	register_author_role( 'author',
 		array(
 			'byline' => true,
 			'name' => __( 'Author' ),
@@ -28,7 +28,7 @@ function register_default_contributor_roles() {
 			)
 		)
 	);
-	register_contributor_role( 'contributing-author',
+	register_author_role( 'contributing-author',
 		array(
 			'byline' => false,
 			'name' => __( 'Contributing Author' ),
@@ -39,7 +39,7 @@ function register_default_contributor_roles() {
 			)
 		)
 	);
-	register_contributor_role( 'photographer',
+	register_author_role( 'photographer',
 		array(
 			'byline' => false,
 			'name' => __( 'Photographer' ),

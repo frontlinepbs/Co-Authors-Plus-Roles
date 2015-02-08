@@ -61,7 +61,7 @@ function coauthors_meta_box( $post ) {
 	$default_user = apply_filters( 'coauthors_default_author', wp_get_current_user() );
 
 	// Roles available can be filtered, by post type for example...
-	$roles_available = apply_filters( 'coauthors_contributor_roles', get_contributor_roles(), $post_id );
+	$roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
 
 	// $post_id and $post->post_author are always set when a new post is created due to auto draft,
 	// and the else case below was always able to properly assign users based on wp_posts.post_author,
@@ -86,7 +86,7 @@ function coauthors_meta_box( $post ) {
 			}
 		}
 	} else {
-		$coauthors = get_coauthors( null, array( 'contributor_role' => 'any' ) );
+		$coauthors = get_coauthors( null, array( 'author_role' => 'any' ) );
 	}
 
 	echo '<h2 style="margin-bottom:0">' . __( 'Credits', 'co-authors-plus' ) . '</h2>';
@@ -116,19 +116,19 @@ function coauthors_meta_box( $post ) {
  * Abstracted to its own function because the same markup needs to be returned
  * from admin-ajax when a new author is added to a post.
  *
- * @param object $coauthor Coauthor to return. Should be extended with the contributor_role attribute.
- * @param string $contributor_role Optional. If adding a new coauthor to a post, it won't already have this.
+ * @param object $coauthor Coauthor to return. Should be extended with the author_role attribute.
+ * @param string $author_role Optional. If adding a new coauthor to a post, it won't already have this.
  *                                 Passing this second parameter will set it on the coauthor.
  */
-function template_coauthor_sortable( $coauthor, $contributor_role = null ) {
-	if ( $contributor_role )
-		$coauthor->contributor_role = $contributor_role;
+function template_coauthor_sortable( $coauthor, $author_role = null ) {
+	if ( $author_role )
+		$coauthor->author_role = $author_role;
 
 	if ( ! isset( $coauthor->type ) )
 		$coauthor->type = 'WP USER';
 
 	// The format in which these values are posted.
-	$coauthor_input_value = "{$coauthor->ID}|||{$coauthor->contributor_role}";
+	$coauthor_input_value = "{$coauthor->ID}|||{$coauthor->author_role}";
 	?>
 	<li id="menu-item-<?php echo $coauthor->ID; ?>" class="menu-item coauthor-sortable">
 		<dl class="menu-item-bar">
@@ -141,8 +141,8 @@ function template_coauthor_sortable( $coauthor, $contributor_role = null ) {
 					<span class="author-email"><?php echo $coauthor->user_email; ?></span>
 					<span class="author-type"><?php echo str_replace( '-', ' ', $coauthor->type ); ?></span>
 				</span>
-				<?php if ( isset( $coauthor->contributor_role ) ) { ?>
-				<span class="contributor-role"><?php echo $coauthor->contributor_role; ?></span>
+				<?php if ( isset( $coauthor->author_role ) ) { ?>
+				<span class="contributor-role"><?php echo $coauthor->author_role; ?></span>
 				<?php } ?>
 				<span class="item-controls">
 					<span class="publishing-actions">
@@ -168,12 +168,12 @@ function ajax_template_coauthor_sortable() {
 	global $coauthors_plus;
 
 	$coauthor = $coauthors_plus->get_coauthor_by( 'id', intval( $_REQUEST['authorId'] ) );
-	$role = get_contributor_role( $_REQUEST['authorRole'] );
+	$role = get_author_role( $_REQUEST['authorRole'] );
 
 	if ( ! $coauthor || ! $role )
 		wp_die( 'Missing required information.' );
 
-	$coauthor->contributor_role = $role->slug;
+	$coauthor->author_role = $role->slug;
 
 	template_coauthor_sortable( $coauthor );
 	die(0);
@@ -226,7 +226,7 @@ function coauthor_select_dialog() {
 
 					<select id="coauthor-select-role" name="coauthor-select-role">
 						<option value=""><?php _e( 'Choose a role', 'coauthors-plus-roles' ); ?></option>
-					<?php $roles_available = apply_filters( 'coauthors_contributor_roles', get_contributor_roles(), $post_id );
+					<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
 						foreach ( $roles_available as $role ) {
 							echo '<option value="' . $role->slug . '">' . $role->name . '</option>';
 						}
@@ -330,7 +330,7 @@ function update_coauthors_on_post( $post_id, $post ) {
 				// posted string into the expected types here.
 				list( $author, $role ) = explode( '|||', $coauthor );
 				$author = intval( $author );
-				$role = get_contributor_role( $role );
+				$role = get_author_role( $role );
 
 				set_contributor_on_post( $post_id, $author, $role );
 			}
