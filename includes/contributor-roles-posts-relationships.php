@@ -36,7 +36,7 @@ function set_contributor_on_post( $post_id, $author, $contributor_role = false )
 	//  - one of the byline roles, as set in register_contributor_role(), or
 	//  - unset, meaning they should default to primary author role.
 	if ( ! $contributor_role || in_array( $contributor_role, byline_roles() ) )
-		$coauthors_plus->add_coauthors( $post_id, array( $author->user_login ), true );
+		$coauthors_plus->add_coauthors( $post_id, array( $author->user_nicename ), true );
 
 	if ( ! $post_id || ! $author )
 		return false;

@@ -92,6 +92,8 @@ function coauthors_meta_box( $post ) {
 	echo '<h2 style="margin-bottom:0">' . __( 'Credits', 'co-authors-plus' ) . '</h2>';
 	echo '<p>' . __( 'Click on an author to change them. Drag to change their order. Click on <b>Remove</b> to remove them.', 'co-authors-plus' ) . '</p>';
 
+	wp_nonce_field( 'coauthors_save', 'edit_coauthorsplus_roles_nonce' );
+
 	echo '<ul id="coauthors-select-list" class="ui-sortable">';
 
 	if ( $coauthors ) {
@@ -124,6 +126,9 @@ function template_coauthor_sortable( $coauthor, $contributor_role = null ) {
 
 	if ( ! isset( $coauthor->type ) )
 		$coauthor->type = 'WP USER';
+
+	// The format in which these values are posted.
+	$coauthor_input_value = "{$coauthor->ID}|||{$coauthor->contributor_role}";
 	?>
 	<li id="menu-item-<?php echo $coauthor->ID; ?>" class="menu-item coauthor-sortable">
 		<dl class="menu-item-bar">
@@ -144,6 +149,7 @@ function template_coauthor_sortable( $coauthor, $contributor_role = null ) {
 						<a class="submitdeletion" href="#delete-<?php echo $coauthor->ID; ?>"><?php _e( 'Remove' ); ?></a>
 					</span>
 				</span>
+				<input type="hidden" name="coauthors[]" value="<?php echo $coauthor_input_value; ?>" />
 			</dt>
 		</dl>
 	</li>
@@ -197,6 +203,12 @@ function enqueue_scripts() {
 
 
 function coauthor_select_dialog() {
+	global $post_ID, $post;
+
+	$post_id = $post_ID;
+	if ( ! isset( $post_id ) && isset( $post ) )
+		$post_id = $post->ID;
+
 		?>
 	<div id="coauthor-select-backdrop" style="display: none"></div>
 	<div id="coauthor-select-wrap" class="wp-core-ui" style="display: none">
@@ -286,3 +298,52 @@ function search_coauthors() {
 }
 
 add_action( 'wp_ajax_coauthor-select-ajax', 'CoAuthorsPlusRoles\search_coauthors' );
+
+
+/**
+ * Update the co-authors on a post on saving.
+ *
+ */
+function update_coauthors_on_post( $post_id, $post ) {
+	global $coauthors_plus;
+
+	if ( defined( 'DOING_AUTOSAVE' ) && ! DOING_AUTOSAVE )
+		return;
+
+	if ( ! $coauthors_plus->is_post_type_enabled( $post->post_type ) )
+		return;
+
+	if ( $coauthors_plus->current_user_can_set_authors( $post ) ) {
+		// if current_user_can_set_authors and nonce valid
+		check_admin_referer( 'coauthors_save', 'edit_coauthorsplus_roles_nonce' );
+
+		$coauthors = (array) $_POST['coauthors'];
+
+		if ( $coauthors && is_array( $coauthors ) ) {
+			foreach ( $coauthors as $coauthor ) {
+
+				// Parse and sanitize terms. `set_contributor_on_post` does
+				// some type checking of its parameters, so we coerce the
+				// posted string into the expected types here.
+				list( $author, $role ) = explode( '|||', $coauthor );
+				$author = intval( $author );
+				$role = get_contributor_role( $role );
+
+				error_log( print_r( $author, true ) . print_r( $role, true ) );
+				set_contributor_on_post( $post_id, $author, $role );
+			}
+		}
+
+	} else {
+		// If the user can't set authors and a co-author isn't currently set,
+		// we need to explicity set one
+		if ( ! $coauthors_plus->has_author_terms( $post_id ) ) {
+			$user = get_userdata( $post->post_author );
+
+			if ( $user )
+				set_contributor_on_post( $post_id, $user->user_login );
+		}
+	}
+}
+
+add_action( 'save_post', 'CoAuthorsPlusRoles\update_coauthors_on_post', 10, 2 );
