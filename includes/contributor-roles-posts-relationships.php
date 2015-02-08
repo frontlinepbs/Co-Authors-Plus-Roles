@@ -43,7 +43,7 @@ function set_contributor_on_post( $post_id, $author, $contributor_role = false )
 
 	$drop_existing_role = $wpdb->query(
 		$wpdb->prepare(
-			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%' AND meta_value=%d",
+			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%d",
 			array( $post_id, $author->ID )
 		)
 	);
@@ -63,10 +63,9 @@ function set_contributor_on_post( $post_id, $author, $contributor_role = false )
  *
  * @param int|object $post_id Post to set author as "coauthor" on
  * @param object|string $author WP_User object, or nicename/user_login/slug
- * @param object|string $contributor_role Term or slug of contributor role to set. Defaults to "byline" if empty
  * @return bool True on success, false on failure (if any of the inputs are not acceptable).
  */
-function remove_contributor_from_post( $post_id, $author, $contributor_role = false ) {
+function remove_contributor_from_post( $post_id, $author ) {
 	global $coauthors_plus, $wpdb;
 
 	if ( is_object( $post_id ) && isset( $post_id->ID ) )
@@ -80,19 +79,17 @@ function remove_contributor_from_post( $post_id, $author, $contributor_role = fa
 	if ( is_int( $author ) )
 		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
 
-	// Remove byline term from post
-	$post_coauthors = $coauthors_plus->get_coauthors( $post_id, array( 'role' => 'any' ) );
+	// Remove byline term from post: Start by getting the author terms on the post.
+	$existing_authors = wp_get_object_terms( $post_id, $coauthors_plus->coauthor_taxonomy, array( 'fields' => 'slugs' ) );
+	$new_authors = array_diff( $existing_authors, array( 'cap-' . $author->user_nicename ) );
+	wp_set_object_terms( $post_id, $new_authors, $coauthors_plus->coauthor_taxonomy, true );
 
-	wp_set_object_terms( $post_id, 'cap-' . $author->user_nicename, $coauthors_plus->coauthor_taxonomy, true );
-
-	if ( $contributor_role ) {
-		$drop_existing_role = $wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%' AND meta_value=%d",
-				array( $post_id, $author->ID )
-			)
-		);
-	}
-
+	// Delete meta value setting contributor on post
+	$drop_existing_role = $wpdb->query(
+		$wpdb->prepare(
+			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%d",
+			array( $post_id, $author->ID )
+		)
+	);
 }
 

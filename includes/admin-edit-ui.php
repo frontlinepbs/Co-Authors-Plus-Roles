@@ -329,7 +329,6 @@ function update_coauthors_on_post( $post_id, $post ) {
 				$author = intval( $author );
 				$role = get_contributor_role( $role );
 
-				error_log( print_r( $author, true ) . print_r( $role, true ) );
 				set_contributor_on_post( $post_id, $author, $role );
 			}
 		}

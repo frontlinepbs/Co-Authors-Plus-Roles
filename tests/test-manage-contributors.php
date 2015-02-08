@@ -48,5 +48,20 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$all_credits = CoAuthorsPlusRoles\get_coauthors( $this->author1_post1, array( 'contributor_role' => 'any' ) );
 		$this->assertEquals( 2, count( $all_credits ) );
 
+		// Remove a co-author from a post
+		\CoAuthorsPlusRoles\remove_contributor_from_post( $this->author1_post1, $this->editor1 );
+		$all_credits = CoAuthorsPlusRoles\get_coauthors( $this->author1_post1, array( 'contributor_role' => 'any' ) );
+		$this->assertEquals( 1, count( $all_credits ) );
+
+
+	}
+
+	/**
+	 * Test the functions called by the Admin UI.
+	 */
+	public function test_admin_ui_contributor_roles_functions() {
+		global $coauthors_plus;
+
+
 	}
 }
