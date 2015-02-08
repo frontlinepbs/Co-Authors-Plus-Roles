@@ -86,7 +86,7 @@ function coauthors_meta_box( $post ) {
 			}
 		}
 	} else {
-		$coauthors = get_coauthors( null, array( 'contributor_role' => 'all' ) );
+		$coauthors = get_coauthors( null, array( 'contributor_role' => 'any' ) );
 	}
 
 	echo '<h2 style="margin-bottom:0">' . __( 'Credits', 'co-authors-plus' ) . '</h2>';
@@ -306,6 +306,9 @@ add_action( 'wp_ajax_coauthor-select-ajax', 'CoAuthorsPlusRoles\search_coauthors
  */
 function update_coauthors_on_post( $post_id, $post ) {
 	global $coauthors_plus;
+
+	if ( ! $post_id && isset( $_POST['post_ID'] ) )
+		$post_id = intval( $_POST['post_ID'] );
 
 	if ( defined( 'DOING_AUTOSAVE' ) && ! DOING_AUTOSAVE )
 		return;
