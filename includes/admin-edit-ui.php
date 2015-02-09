@@ -392,21 +392,47 @@ function get_top_authors() {
 /**
  * Update the co-authors on a post on saving.
  *
+ * @param int $post_ID
+ * @param array $new_coauthors Array of strings in the format posted by the sortables in the meta box.
  */
-function update_coauthors_on_post( $post_id, $post ) {
+function update_coauthors_on_post( $post_id, $new_coauthors ) {
+	global $coauthors_plus;
+
+	$post = get_post( $post_id );
+	if ( ! $coauthors_plus->is_post_type_enabled( $post->post_type ) )
+		return;
+
+	if ( $new_coauthors && is_array( $new_coauthors ) ) {
+		foreach ( $new_coauthors as $coauthor ) {
+
+			// Parse and sanitize terms. `set_contributor_on_post` does
+			// some type checking of its parameters, so we coerce the
+			// posted string into the expected types here.
+			list( $author, $role ) = explode( '|||', $coauthor );
+			$author = intval( $author );
+			$role = get_author_role( $role );
+
+			set_contributor_on_post( $post_id, $author, $role );
+
+		}
+	}
+}
+
+/**
+ * Update the co-authors on a post on saving.
+ *
+ */
+function action_update_coauthors_on_post( $post_id, $post ) {
 	global $coauthors_plus;
 
 	if ( ! $post_id && isset( $_POST['post_ID'] ) )
 		$post_id = intval( $_POST['post_ID'] );
 
-	if ( defined( 'DOING_AUTOSAVE' ) && ! DOING_AUTOSAVE )
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 		return;
 
-	if ( ! $coauthors_plus->is_post_type_enabled( $post->post_type ) )
+	if ( empty( $_POST['coauthors'] ) )
 		return;
-
-	if ( ! isset( $POST['coauthors_save'] ) )
-		return false;
 
 	if ( $coauthors_plus->current_user_can_set_authors( $post ) ) {
 		// if current_user_can_set_authors and nonce valid
@@ -414,19 +440,7 @@ function update_coauthors_on_post( $post_id, $post ) {
 
 		$coauthors = (array) $_POST['coauthors'];
 
-		if ( $coauthors && is_array( $coauthors ) ) {
-			foreach ( $coauthors as $coauthor ) {
-
-				// Parse and sanitize terms. `set_contributor_on_post` does
-				// some type checking of its parameters, so we coerce the
-				// posted string into the expected types here.
-				list( $author, $role ) = explode( '|||', $coauthor );
-				$author = intval( $author );
-				$role = get_author_role( $role );
-
-				set_contributor_on_post( $post_id, $author, $role );
-			}
-		}
+		update_coauthors_on_post( $post_id, $coauthors );
 
 	} else {
 		// If the user can't set authors and a co-author isn't currently set,
@@ -440,4 +454,4 @@ function update_coauthors_on_post( $post_id, $post ) {
 	}
 }
 
-add_action( 'save_post', 'CoAuthorsPlusRoles\update_coauthors_on_post', 10, 2 );
+add_action( 'save_post', 'CoAuthorsPlusRoles\action_update_coauthors_on_post', 100, 2 );

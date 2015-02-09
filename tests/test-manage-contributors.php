@@ -97,7 +97,41 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 
 		// After adding author to post, search_coauthors() on that post should no longer return them.
 		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
-		$this->assertTrue( ! in_array( $guest_author_2, wp_list_pluck( $all_contributors, 'ID' ) ) );
+		$this->assertNotContains( $guest_author_2, wp_list_pluck( $all_contributors, 'ID' ) );
 
 	}
+
+	/**
+	 * Test the functions called on update_post to edit the contributors on a post.
+	 */
+	public function test_admin_set_contributors_on_post() {
+		global $coauthors_plus;
+
+		// Create a post with a WP user as author. Calling update_coauthors_on_post should reset it.
+		$post = $this->factory->post->create( array(
+			'post_status'     => 'publish',
+			'post_content'    => rand_str(),
+			'post_title'      => rand_str(),
+			'post_author'     => $this->author1_post1,
+			) );
+		$guest_author = $coauthors_plus->guest_authors->create( array(
+			'display_name' => 'Guest Author through UI',
+			'user_login' => 'guest-author-through-ui'
+		) );
+		\CoAuthorsPlusRoles\update_coauthors_on_post( $post, array( "{$guest_author}|||author" ) );
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( (int) $post, array( 'author_role' => 'any' ) );
+		$this->assertCount( 1, $updated_coauthors );
+		$this->assertContains( $guest_author, wp_list_pluck( $updated_coauthors, 'ID' ) );
+
+		// Calling update_coauthors_on_post with an array should add all the new authors
+		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
+			array( "{$this->author1_post1}|||author", "{$guest_author}|||contributor" )
+		);
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
+		$this->assertCount( 2, $updated_coauthors );
+		$contributors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'contributor' ) );
+		$this->assertCount( 1, $contributors );
+
+	}
+
 }
