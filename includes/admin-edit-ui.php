@@ -9,6 +9,13 @@
 
 namespace CoAuthorsPlusRoles;
 
+
+/*
+ * Initialize admin scripts for this plugin.
+ *
+ * Responsible for removing the meta box from CAP, dequeueing its scripts, as
+ * well as adding the new meta box for roles information.
+ */
 function admin_init() {
 	global $coauthors_plus;
 
@@ -49,6 +56,7 @@ function add_meta_boxes() {
 /**
  * Outputs the HTML markup for the Contributors meta box.
  *
+ *
  */
 function coauthors_meta_box( $post ) {
 	global $post, $coauthors_plus, $current_screen;
@@ -63,10 +71,13 @@ function coauthors_meta_box( $post ) {
 	// Roles available can be filtered, by post type for example...
 	$roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
 
+	// -- COPYPASTA from Co-Authors Plus:
 	// $post_id and $post->post_author are always set when a new post is created due to auto draft,
 	// and the else case below was always able to properly assign users based on wp_posts.post_author,
 	// but that's not possible with force_guest_authors = true.
-	if ( ! $post_id || $post_id == 0 || ( ! $post->post_author && ! $coauthors_plus->force_guest_authors ) || ( $current_screen->base == 'post' && $current_screen->action == 'add' ) ) {
+	if ( ! $post_id || $post_id == 0
+			|| ( ! $post->post_author && ! $coauthors_plus->force_guest_authors )
+			|| ( $current_screen->base == 'post' && $current_screen->action == 'add' ) ) {
 		$coauthors = array();
 		// If guest authors is enabled, try to find a guest author attached to this user ID
 		if ( $coauthors_plus->is_guest_authors_enabled() ) {
@@ -88,6 +99,7 @@ function coauthors_meta_box( $post ) {
 	} else {
 		$coauthors = get_coauthors( null, array( 'author_role' => 'any' ) );
 	}
+	// -- end copypasta
 
 	echo '<h2 style="margin-bottom:0">' . __( 'Credits', 'co-authors-plus' ) . '</h2>';
 	echo '<p>' . __( 'Click on an author to change them. Drag to change their order. Click on <b>Remove</b> to remove them.', 'co-authors-plus' ) . '</p>';
