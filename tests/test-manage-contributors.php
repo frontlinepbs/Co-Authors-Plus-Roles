@@ -61,10 +61,43 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 	public function test_admin_ui_author_roles_functions() {
 		global $coauthors_plus;
 
-		\CoAuthorsPlusRoles\set_contributor_on_post( $this->author1_post1, $this->editor1 );
-
+		// Add a couple new guest authors on this site. They should be included
+		// in the get_top_coauthors count.
+		$guest_author_1 = $coauthors_plus->guest_authors->create( array(
+			'display_name' => 'New Guest Author 1',
+			'user_login' => 'new-guest-author-1'
+		) );
+		$guest_author_2 = $coauthors_plus->guest_authors->create( array(
+			'display_name' => 'New Guest Author 2',
+			'user_login' => 'new-guest-author-2'
+		) );
 		$all_contributors = CoAuthorsPlusRoles\get_top_authors();
-		$this->assertEquals( count( $all_contributors ), 2 );
+		$this->assertEquals( count( $all_contributors ), 3 );
+		$this->assertContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
+
+		$post = $this->author1_post1;
+
+		$guest_author_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_1 );
+
+		// Setting a guest author as a contributor on a post should include
+		// them in the get_coauthors() response for that post.
+		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_user_object );
+		$all_credits_on_post = CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
+		$this->assertContains( $guest_author_1, wp_list_pluck( $all_credits_on_post, 'ID' ) );
+
+		// After adding author to post, search_coauthors() on that post should no longer return them.
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$this->assertTrue( ! in_array( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) ) );
+
+		// Setting a guest author as a non-byline role on a post should also include
+		// them in the get_coauthors() response for that post.
+		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_2 );
+		$all_credits_on_post = CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
+		$this->assertContains( $guest_author_2, wp_list_pluck( $all_credits_on_post, 'ID' ) );
+
+		// After adding author to post, search_coauthors() on that post should no longer return them.
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$this->assertTrue( ! in_array( $guest_author_2, wp_list_pluck( $all_contributors, 'ID' ) ) );
 
 	}
 }

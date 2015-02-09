@@ -297,16 +297,47 @@ function coauthor_select_dialog() {
  *
  * If no search term is specified, returns the most frequent contributors on a
  * blog. This is used to populate the initial list shown in the modal.
+ *
+ * If the optional $post_ID parameter present, the values returned will exclude
+ * authors on the current post.
+ *
+ * @param string $search_term String to search for. Can be empty.
+ * @param integer $post_ID The post being searched on.
  */
-function search_coauthors() {
+function search_coauthors( $search_term, $post_ID ) {
 	global $coauthors_plus;
 
-	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_search_nonce' );
-
-	if ( isset( $_REQUEST['search'] ) )
-		$coauthors = $coauthors_plus->search_authors( sanitize_text_field( $_REQUEST['search'] ) );
+	if ( isset( $search_term ) )
+		$coauthors = $coauthors_plus->search_authors( $search_term );
 	else
 		$coauthors = get_top_authors();
+
+	if ( isset( $post_ID ) && $post_ID ) {
+		$existing = get_coauthors( $post_ID );
+
+		// XXX: I suspect, but haven't measured, that this comparator function
+		// is ridiculously slow. Investigate refactoring.
+		$coauthors = array_udiff( $coauthors, $existing,
+			function( $author, $existing ) {
+				return $author->ID === $existing->ID;
+			}
+		);
+	}
+
+	return $coauthors;
+}
+
+
+/**
+ * Responds to the ajax endpoint to search for coauthors.
+ *
+ * Validates nonce, sanitizes inputs and calls search_coauthors().
+ *
+ * @uses CoAuthorsRolesPlus\search_coauthors()
+ */
+function ajax_search_coauthors() {
+	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_search_nonce' );
+	$coauthors = search_coauthors( sanitize_text_field( $_REQUEST['search'] ), intval( $_POST['post_ID'] ) );
 
 	if ( $coauthors )
 		wp_send_json( array_values( $coauthors ) );
@@ -316,7 +347,7 @@ function search_coauthors() {
 	die(0);
 }
 
-add_action( 'wp_ajax_coauthor-select-ajax', 'CoAuthorsPlusRoles\search_coauthors' );
+add_action( 'wp_ajax_coauthor-select-ajax', 'CoAuthorsPlusRoles\ajax_search_coauthors' );
 
 
 /**
