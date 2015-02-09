@@ -97,7 +97,7 @@ function coauthors_meta_box( $post ) {
 			}
 		}
 	} else {
-		$coauthors = get_coauthors( null, array( 'author_role' => 'any' ) );
+		$coauthors = get_coauthors( $post_id, array( 'author_role' => 'any' ) );
 	}
 	// -- end copypasta
 
@@ -227,6 +227,7 @@ function coauthor_select_dialog() {
 	<div id="coauthor-select-wrap" class="wp-core-ui" style="display: none">
 		<form id="coauthor-select-contributor" tabindex="-1">
 		<?php wp_nonce_field( 'coauthor-select', '_coauthor_select_nonce', false ); ?>
+		<input type="hidden" id="coauthor-post-id" value="<?php echo $post_id; ?>" />
 			<div id="coauthor-select-modal-title">
 				<?php _e( 'Add new contributor to post', 'coauthors-plus-roles' ) ?>
 				<button type="button" id="coauthor-select-close">
@@ -307,19 +308,21 @@ function coauthor_select_dialog() {
 function search_coauthors( $search_term, $post_ID ) {
 	global $coauthors_plus;
 
-	if ( isset( $search_term ) )
+	if ( isset( $search_term ) && $search_term )
 		$coauthors = $coauthors_plus->search_authors( $search_term );
 	else
 		$coauthors = get_top_authors();
 
-	if ( isset( $post_ID ) && $post_ID ) {
+	if ( isset( $post_ID ) && intval( $post_ID ) > 0 ) {
 		$existing = get_coauthors( $post_ID );
 
 		// XXX: I suspect, but haven't measured, that this comparator function
 		// is ridiculously slow. Investigate refactoring.
 		$coauthors = array_udiff( $coauthors, $existing,
 			function( $author, $existing ) {
-				return $author->ID === $existing->ID;
+				if ( (int) $author->ID == (int) $existing->ID )
+					return 0; // zero represents equality here, like in compare. PHP why?
+				return 1;
 			}
 		);
 	}
@@ -337,7 +340,10 @@ function search_coauthors( $search_term, $post_ID ) {
  */
 function ajax_search_coauthors() {
 	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_search_nonce' );
-	$coauthors = search_coauthors( sanitize_text_field( $_REQUEST['search'] ), intval( $_POST['post_ID'] ) );
+
+	$search = isset( $_REQUEST['search'] ) ? sanitize_text_field( $_REQUEST['search'] ) : false;
+	$post_ID = isset( $_REQUEST['postId'] ) ? intval( $_REQUEST['postId'] ) : false;
+	$coauthors = search_coauthors( $search, $post_ID );
 
 	if ( $coauthors )
 		wp_send_json( array_values( $coauthors ) );

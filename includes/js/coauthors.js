@@ -25,6 +25,7 @@ var coauthors;
 			// Inputs
 			inputs.role = $( '#coauthor-select-role' );
 			inputs.authorId = $( '#coauthor-author-id' );
+			inputs.postId = $( '#coauthor-post-id' );
 			inputs.nonce = $( '#_coauthor_select_nonce' );
 
 			// Advanced Options
@@ -424,6 +425,7 @@ var coauthors;
 				query = {
 					action : 'coauthor-select-ajax',
 					page : this.page,
+					postId: inputs.postId.val(),
 					'_ajax_coauthor_search_nonce' : inputs.nonce.val()
 				};
 
