@@ -155,11 +155,15 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 				<?php $author_role = ( isset( $coauthor->author_role ) ) ?
 										$coauthor->author_role : 'BYLINE'; ?>
 				<span class="author-role sortable-flex-section">
-					<a class="edit-coauthor"><?php echo $author_role; ?></a>
+					<a class="edit-coauthor"
+						data-author-name="<?php echo $coauthor->display_name; ?>"
+						data-role="<?php echo $author_role; ?>"
+						data-author-id="<?php echo $coauthor->ID; ?>"
+						><?php echo $author_role; ?></a>
 				</span>
 				<span class="author-controls sortable-flex-section">
 					<span class="publishing-actions">
-						<a class="submitdelete deletiion" href="#delete-<?php echo $coauthor->ID; ?>"><?php _e( 'Remove' ); ?></a>
+						<a class="remove-coauthor submitdelete deletion"><?php _e( 'Remove' ); ?></a>
 					</span>
 				</span>
 				<input type="hidden" name="coauthors[]" value="<?php echo $coauthor_input_value; ?>" />
@@ -279,7 +283,7 @@ function coauthor_select_dialog() {
 					<a class="submitdelete deletion" href="#"><?php _e( 'Cancel' ); ?></a>
 				</div>
 				<div id="coauthor-select-update">
-					<input type="submit" value="<?php esc_attr_e( 'Add Link' ); ?>" class="button button-primary" id="coauthor-select-submit" name="coauthor-select-submit">
+					<input type="submit" value="<?php esc_attr_e( 'Add coauthor to post' ); ?>" class="button button-primary" id="coauthor-select-submit" name="coauthor-select-submit">
 				</div>
 			</div>
 		</form>

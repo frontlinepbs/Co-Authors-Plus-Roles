@@ -1,13 +1,43 @@
 /* global ajaxurl */
-var coauthors;
+var coauthorsSelector, coauthorsSortable;
 
 ( function( $ ) {
-	var editor, searchTimer, River, Query,
+	var currentlyEditing, searchTimer, River, Query,
 		inputs = {},
 		rivers = {},
 		isTouch = ( 'ontouchend' in document );
 
-	coauthors = {
+	coauthorsSortable = {
+		list: $('#coauthors-select-list'),
+		toggle: $('#coauthor-add-toggle'),
+
+		removeSortableLi: function(evt) {
+			$(evt.currentTarget).closest('li.coauthor-sortable').remove();
+		},
+
+		openSelectorToEdit: function(evt) {
+			var link = $(evt.currentTarget),
+				thisLi = link.closest('li.coauthor-sortable'),
+				thisAuthor = link.data( 'author-id' );
+
+			currentlyEditing = thisLi;
+
+			coauthorsSelector.open();
+			inputs.role.val( link.data('role') );
+			inputs.authorId.val( link.data('author-id') );
+			inputs.search.val( link.data('author-name') );
+
+		},
+
+		init: function() {
+			this.list.sortable();
+			this.list.on( 'click', 'a.remove-coauthor', this.removeSortableLi );
+			this.list.on( 'click', 'a.edit-coauthor', this.openSelectorToEdit );
+			this.toggle.on( 'click', coauthorsSelector.open );
+		}
+	};
+
+	coauthorsSelector = {
 		timeToTriggerRiver: 150,
 		minRiverAJAXDuration: 200,
 		riverBottomThreshold: 5,
@@ -42,20 +72,18 @@ var coauthors;
 			inputs.queryNoticeTextHint = inputs.queryNotice.find( '.query-notice-hint' );
 
 			// Bind event handlers
-			inputs.dialog.keydown( coauthors.keydown );
-			inputs.dialog.keyup( coauthors.keyup );
+			inputs.dialog.keydown( coauthorsSelector.keydown );
+			inputs.dialog.keyup( coauthorsSelector.keyup );
 			inputs.submit.click( function( event ) {
 				event.preventDefault();
-				coauthors.update();
+				coauthorsSelector.update();
 			});
 			inputs.close.add( inputs.backdrop ).add( '#coauthor-select-cancel a' ).click( function( event ) {
 				event.preventDefault();
-				coauthors.close();
+				coauthorsSelector.close();
 			});
 
-			$( '#coauthor-add-toggle' ).on( 'click', coauthors.open );
-
-			rivers.elements.on( 'coauthors-river-select', coauthors.updateFields );
+			rivers.elements.on( 'coauthors-river-select', coauthorsSelector.updateFields );
 
 			// Display 'hint' message when search field or 'query-results' box are focused
 			inputs.search.on( 'focus.coauthors', function() {
@@ -71,22 +99,20 @@ var coauthors;
 
 				window.clearTimeout( searchTimer );
 				searchTimer = window.setTimeout( function() {
-					coauthors.searchAuthors.call( self );
+					coauthorsSelector.searchAuthors.call( self );
 				}, 500 );
 			});
 		},
 
-		open: function( editorId ) {
-			var ed;
-
+		open: function() {
 			$( document.body ).addClass( 'modal-open' );
 
-			coauthors.range = null;
+			coauthorsSelector.range = null;
 
 			inputs.wrap.show();
 			inputs.backdrop.show();
 
-			coauthors.refresh();
+			coauthorsSelector.refresh();
 			$( document ).trigger( 'coauthors-select-open', inputs.wrap );
 
 		},
@@ -116,6 +142,7 @@ var coauthors;
 		close: function() {
 			$( document.body ).removeClass( 'modal-open' );
 
+			currentlyEditing = false;
 			inputs.backdrop.hide();
 			inputs.wrap.hide();
 			$( document ).trigger( 'coauthor-select-close', inputs.wrap );
@@ -144,7 +171,11 @@ var coauthors;
 				};
 
 			$.post( ajaxurl, query, function( r ) {
-				$('#coauthors-select-list').append( r );
+				if ( currentlyEditing )
+					currentlyEditing.html( r )
+				else 
+					coauthorsSortable.list.append( r );
+				
 			});
 			this.close();
 
@@ -163,10 +194,10 @@ var coauthors;
 				rivers.search.show();
 
 				// Don't search if the keypress didn't change the title.
-				if ( coauthors.lastSearch == search )
+				if ( coauthorsSelector.lastSearch == search )
 					return;
 
-				coauthors.lastSearch = search;
+				coauthorsSelector.lastSearch = search;
 				waiting = t.parent().find('.spinner').show();
 
 				rivers.search.change( search );
@@ -194,7 +225,7 @@ var coauthors;
 				key = $.ui.keyCode;
 
 			if ( key.ESCAPE === event.keyCode ) {
-				coauthors.close();
+				coauthorsSelector.close();
 				event.stopImmediatePropagation();
 			} else if ( key.TAB === event.keyCode ) {
 				id = event.target.id;
@@ -220,9 +251,9 @@ var coauthors;
 			}
 
 			fn = event.keyCode === key.UP ? 'prev' : 'next';
-			clearInterval( coauthors.keyInterval );
-			coauthors[ fn ]();
-			coauthors.keyInterval = setInterval( coauthors[ fn ], coauthors.keySensitivity );
+			clearInterval( coauthorsSelector.keyInterval );
+			coauthorsSelector[ fn ]();
+			coauthorsSelector.keyInterval = setInterval( coauthorsSelector[ fn ], coauthorsSelector.keySensitivity );
 			event.preventDefault();
 		},
 
@@ -230,7 +261,7 @@ var coauthors;
 			var key = $.ui.keyCode;
 
 			if ( event.which === key.UP || event.which === key.DOWN ) {
-				clearInterval( coauthors.keyInterval );
+				clearInterval( coauthorsSelector.keyInterval );
 				event.preventDefault();
 			}
 		},
@@ -343,8 +374,8 @@ var coauthors;
 		},
 		ajax: function( callback ) {
 			var self = this,
-				delay = this.query.page == 1 ? 0 : coauthors.minRiverAJAXDuration,
-				response = coauthors.delayedCallback( function( results, params ) {
+				delay = this.query.page == 1 ? 0 : coauthorsSelector.minRiverAJAXDuration,
+				response = coauthorsSelector.delayedCallback( function( results, params ) {
 					self.process( results, params );
 					if ( callback )
 						callback( results, params );
@@ -389,14 +420,14 @@ var coauthors;
 				el = this.element,
 				bottom = el.scrollTop() + el.height();
 
-			if ( ! this.query.ready() || bottom < this.contentHeight.height() - coauthors.riverBottomThreshold )
+			if ( ! this.query.ready() || bottom < this.contentHeight.height() - coauthorsSelector.riverBottomThreshold )
 				return;
 
 			setTimeout(function() {
 				var newTop = el.scrollTop(),
 					newBottom = newTop + el.height();
 
-				if ( ! self.query.ready() || newBottom < self.contentHeight.height() - coauthors.riverBottomThreshold )
+				if ( ! self.query.ready() || newBottom < self.contentHeight.height() - coauthorsSelector.riverBottomThreshold )
 					return;
 
 				self.waiting.show();
@@ -405,7 +436,7 @@ var coauthors;
 				self.ajax( function() {
 					self.waiting.hide();
 				});
-			}, coauthors.timeToTriggerRiver );
+			}, coauthorsSelector.timeToTriggerRiver );
 		}
 	});
 
@@ -443,6 +474,9 @@ var coauthors;
 		}
 	});
 
-	$( document ).ready( coauthors.init );
-	$('#coauthors-select-list').sortable();
+	$( document ).ready( function() {
+		coauthorsSelector.init();
+		coauthorsSortable.init();
+	});
+
 })( jQuery );
