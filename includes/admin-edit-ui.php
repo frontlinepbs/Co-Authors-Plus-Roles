@@ -134,19 +134,20 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 		<dl class="menu-item-bar">
 			<dt class="menu-item-handle">
 				<span class="author-avatar">
-					<?php echo get_avatar( $coauthor, 40 ); ?>
+					<?php echo get_avatar( $coauthor->user_email, 48 ); ?>
 				</span>
-				<span class="author-info">
+				<span class="author-info sortable-flex-section">
 					<span class="author-name"><?php echo $coauthor->display_name; ?></span>
 					<span class="author-email"><?php echo $coauthor->user_email; ?></span>
-					<span class="author-type"><?php echo str_replace( '-', ' ', $coauthor->type ); ?></span>
 				</span>
-				<?php if ( isset( $coauthor->author_role ) ) { ?>
-				<span class="contributor-role"><?php echo $coauthor->author_role; ?></span>
-				<?php } ?>
-				<span class="item-controls">
+				<?php $author_role = ( isset( $coauthor->author_role ) ) ?
+										$coauthor->author_role : 'BYLINE'; ?>
+				<span class="author-role sortable-flex-section">
+					<a class="edit-coauthor"><?php echo $author_role; ?></a>
+				</span>
+				<span class="author-controls sortable-flex-section">
 					<span class="publishing-actions">
-						<a class="submitdeletion" href="#delete-<?php echo $coauthor->ID; ?>"><?php _e( 'Remove' ); ?></a>
+						<a class="submitdelete deletiion" href="#delete-<?php echo $coauthor->ID; ?>"><?php _e( 'Remove' ); ?></a>
 					</span>
 				</span>
 				<input type="hidden" name="coauthors[]" value="<?php echo $coauthor_input_value; ?>" />
