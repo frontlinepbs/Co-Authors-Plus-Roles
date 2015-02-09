@@ -430,7 +430,7 @@ function update_coauthors_on_post( $post_id, $post ) {
 
 	} else {
 		// If the user can't set authors and a co-author isn't currently set,
-		// we need to explicity set one
+		// we need to explicitly set one
 		if ( ! $coauthors_plus->has_author_terms( $post_id ) ) {
 			$user = get_userdata( $post->post_author );
 

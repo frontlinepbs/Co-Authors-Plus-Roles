@@ -87,7 +87,7 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 
 		// After adding author to post, search_coauthors() on that post should no longer return them.
 		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
-		$this->assertTrue( ! in_array( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) ) );
+		$this->assertNotContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
 
 		// Setting a guest author as a non-byline role on a post should also include
 		// them in the get_coauthors() response for that post.
