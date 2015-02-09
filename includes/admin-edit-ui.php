@@ -407,6 +407,8 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 		return;
 
 	if ( $new_coauthors && is_array( $new_coauthors ) ) {
+		// XXX This should diff against the already added coauthors, or alternately just wipe them every time.
+		// Right now it just appends, so you can never delete an author from a post.
 		foreach ( $new_coauthors as $coauthor ) {
 
 			// Parse and sanitize terms. `set_contributor_on_post` does
