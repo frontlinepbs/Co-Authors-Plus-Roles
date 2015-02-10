@@ -19,6 +19,10 @@ namespace CoAuthorsPlusRoles;
 function admin_init() {
 	global $coauthors_plus;
 
+	if ( empty( $coauthors_plus ) ) {
+		return;
+	}
+
 	remove_action( 'add_meta_boxes',        array( $coauthors_plus, 'add_coauthors_box' ) );
 	remove_action( 'admin_enqueue_scripts', array( $coauthors_plus, 'enqueue_scripts'   ) );
 	remove_action( 'admin_head',            array( $coauthors_plus, 'js_vars'           ) );
@@ -38,6 +42,10 @@ add_action( 'admin_init', 'CoAuthorsPlusRoles\admin_init', 11 );
  */
 function add_meta_boxes() {
 	global $coauthors_plus;
+
+	if ( empty( $coauthors_plus ) ) {
+		return;
+	}
 
 	if ( $coauthors_plus->is_post_type_enabled() &&
 			$coauthors_plus->current_user_can_set_authors() ) {
