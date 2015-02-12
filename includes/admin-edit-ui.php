@@ -104,10 +104,21 @@ function coauthors_meta_box( $post ) {
 				$coauthors[] = $default_user;
 			}
 		}
+
 	} else {
 		$coauthors = get_coauthors( $post_id, array( 'author_role' => 'any' ) );
 	}
 	// -- end copypasta
+
+	// Extend the coauthors as returned from Co-Authors Plus with the 'author_role' field, as it won't
+	// have that field if the author hasn't been saved yet.
+	$coauthors = array_map(
+		function($author) {
+			if ( ! isset( $author->author_role ) )
+				$author->author_role = '';
+			return $author;
+		}, $coauthors );
+
 
 	echo '<h2 style="margin-bottom:0">' . __( 'Credits', 'co-authors-plus' ) . '</h2>';
 	echo '<p>' . __( 'Click on an author to change them. Drag to change their order. Click on <b>Remove</b> to remove them.', 'co-authors-plus' ) . '</p>';
