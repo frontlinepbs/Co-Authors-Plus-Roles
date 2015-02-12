@@ -5,14 +5,14 @@
  * These tests mirror the tests in test-manage-coauthors.php, but also include roles.
  */
 
-class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
+class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 
 	/**
 	 * Test registering, removing, and modifying a role.
 	 */
 	public function test_manage_author_roles() {
 
-		// The default contributor roles should be active initially.
+		// The default author roles should be active initially.
 		$roles = get_author_roles();
 		$this->assertEquals( 3, count( $roles ) );
 		$this->assertEquals( 'Author', $roles['author']->name );
@@ -79,7 +79,7 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 
 		$guest_author_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_1 );
 
-		// Setting a guest author as a contributor on a post should include
+		// Setting a guest author as an author on a post should include
 		// them in the get_coauthors() response for that post.
 		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_user_object );
 		$all_credits_on_post = CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );

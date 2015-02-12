@@ -54,7 +54,7 @@ function add_meta_boxes() {
 
 
 /**
- * Outputs the HTML markup for the Contributors meta box.
+ * Outputs the HTML markup for the Authors meta box.
  *
  *
  */
@@ -101,7 +101,7 @@ function coauthors_meta_box( $post ) {
 	}
 	// -- end copypasta
 
-	echo '<h2 style="margin-bottom:0">' . __( 'Credits', 'co-authors-plus-roles' ) . '</h2>';
+	echo '<h2 style="margin-bottom:0">' . __( 'Author(s)', 'co-authors-plus-roles' ) . '</h2>';
 	echo '<p>' . __( 'Click on an author to change them. Drag to change their order. Click on <b>Remove</b> to remove them.', 'co-authors-plus-roles' ) . '</p>';
 
 	wp_nonce_field( 'coauthors_save', 'edit_coauthorsplus_roles_nonce' );
@@ -117,7 +117,7 @@ function coauthors_meta_box( $post ) {
 	echo '</ul>';
 
 	echo '<h4><a class="hide-if-no-js" href="#coauthor-add" id="coauthor-add-toggle">'
-		. __( '+ Add New Contributor', 'co-authors-plus-roles' ) . '</a></h4>';
+		. __( '+ Add New Author', 'co-authors-plus-roles' ) . '</a></h4>';
 
 }
 
@@ -210,9 +210,9 @@ function enqueue_scripts() {
 	);
 	wp_localize_script( 'coauthor-select', 'coauthorsL10n',
 		array(
-			'title' => __( 'Insert/edit contributor', 'co-authors-plus-roles' ),
+			'title' => __( 'Insert/edit author', 'co-authors-plus-roles' ),
 			'update' => __( 'Update', 'co-authors-plus-roles' ),
-			'save' => __( 'Add Contributor', 'co-authors-plus-roles' ),
+			'save' => __( 'Add Author', 'co-authors-plus-roles' ),
 			'noMatchesFound' => __( 'No results found.', 'co-authors-plus-roles' )
 		)
 	);
