@@ -92,7 +92,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 		);
 
 		foreach ( $coauthor_ids as $coauthor_id ) {
-			$_coauthor = $coauthors_plus->get_coauthor_by( 'id', $coauthor_id->meta_value );
+			$_coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_id->meta_value );
 			$_coauthor->author_role = strstr( $coauthor_id->meta_key, 4 );
 			$coauthors[] = $_coauthor;
 		}

@@ -29,16 +29,17 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 	public function test_manage_author_roles_relationships() {
 		global $coauthors_plus;
 		$author1 = get_user_by( 'id', $this->author1 );
+		$editor1 = get_user_by( 'id', $this->editor1 );
 
 		// Setup: assign author1 as the only co-author (byline)
 		$coauthors_plus->add_coauthors(
-			$this->author1_post1, array( $author1->user_login ), false
+			$this->author1_post1, array( $author1->user_nicename ), false
 		);
 		$this->assertEquals( $this->author1, get_post( $this->author1_post1 )->post_author );
 
 		// Add a coauthor in a non-byline role. Should not be returned by get_coauthors.
 		\CoAuthorsPlusRoles\set_contributor_on_post(
-			$this->author1_post1, $this->editor1, 'contributing-author'
+			$this->author1_post1, $editor1, 'contributor'
 		);
 		$coauthors = get_coauthors( $this->author1_post1 );
 		$coauthors_this_plugin = CoAuthorsPlusRoles\get_coauthors( $this->author1_post1 );
@@ -74,14 +75,16 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$all_contributors = CoAuthorsPlusRoles\get_top_authors();
 		$this->assertEquals( count( $all_contributors ), 3 );
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
+		$this->assertContains( $guest_author_2, wp_list_pluck( $all_contributors, 'ID' ) );
 
 		$post = $this->author1_post1;
 
-		$guest_author_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_1 );
+		$guest_author_1_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_1 );
+		$guest_author_2_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_2 );
 
 		// Setting a guest author as a contributor on a post should include
 		// them in the get_coauthors() response for that post.
-		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_user_object );
+		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_1_user_object );
 		$all_credits_on_post = CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_credits_on_post, 'ID' ) );
 
@@ -91,7 +94,7 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 
 		// Setting a guest author as a non-byline role on a post should also include
 		// them in the get_coauthors() response for that post.
-		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_2 );
+		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_2_user_object, 'contributor' );
 		$all_credits_on_post = CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
 		$this->assertContains( $guest_author_2, wp_list_pluck( $all_credits_on_post, 'ID' ) );
 
@@ -118,20 +121,33 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 			'display_name' => 'Guest Author through UI',
 			'user_login' => 'guest-author-through-ui'
 		) );
-		\CoAuthorsPlusRoles\update_coauthors_on_post( $post, array( "{$guest_author}|||author" ) );
+		$guest_author_nicename = $coauthors_plus->get_coauthor_by( 'id', $guest_author )->user_nicename;
+
+		\CoAuthorsPlusRoles\update_coauthors_on_post( $post, array( "{$guest_author_nicename}|||author" ) );
 		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( (int) $post, array( 'author_role' => 'any' ) );
 		$this->assertCount( 1, $updated_coauthors );
 		$this->assertContains( $guest_author, wp_list_pluck( $updated_coauthors, 'ID' ) );
 
-		// Calling update_coauthors_on_post with an array should add all the new authors
-		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
-			array( "{$this->author1_post1}|||author", "{$guest_author}|||contributor" )
-		);
-		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
-		$this->assertCount( 2, $updated_coauthors );
-		$contributors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'contributor' ) );
-		$this->assertCount( 1, $contributors );
+		$user1 = get_userdata( $this->author1 );
 
+		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
+			array( "{$user1->user_login}|||author", "guest-author-through-ui|||contributor" )
+		);
+		// Calling update_coauthors_on_post with an array should add all the new authors
+		// Using: one WP_User, and one of Guest Author post type
+		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
+			array( "{$user1->user_login}|||author", "guest-author-through-ui|||contributor" )
+		);
+
+		// Both should show up in a query with author_role = any
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
+		$this->assertContains( $user1->user_login, wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
+		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
+
+		// Only the contributor should show up in this query where author_role = contributor
+		$contributors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'contributor' ) );
+		$this->assertNotContains( $user1->user_login, wp_list_pluck( $contributors, 'user_nicename' ) );
+		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $contributors, 'user_nicename' ) );
 	}
 
 }

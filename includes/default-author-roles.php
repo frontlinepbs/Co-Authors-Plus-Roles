@@ -28,7 +28,7 @@ function register_default_author_roles() {
 			)
 		)
 	);
-	register_author_role( 'contributing-author',
+	register_author_role( 'contributor',
 		array(
 			'byline' => false,
 			'name' => __( 'Contributing Author' ),

@@ -148,9 +148,9 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 		$coauthor->type = 'WP USER';
 
 	// The format in which these values are posted.
-	$coauthor_input_value = "{$coauthor->ID}|||{$coauthor->author_role}";
+	$coauthor_input_value = "{$coauthor->user_nicename}|||{$coauthor->author_role}";
 	?>
-	<li id="menu-item-<?php echo $coauthor->ID; ?>" class="menu-item coauthor-sortable">
+	<li id="menu-item-<?php echo $coauthor->user_nicename; ?>" class="menu-item coauthor-sortable">
 		<dl class="menu-item-bar">
 			<dt class="menu-item-handle">
 				<span class="author-avatar">
@@ -166,7 +166,7 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 					<a class="edit-coauthor"
 						data-author-name="<?php echo $coauthor->display_name; ?>"
 						data-role="<?php echo $author_role; ?>"
-						data-author-id="<?php echo $coauthor->ID; ?>"
+						data-author-id="<?php echo $coauthor->user_nicename; ?>"
 						><?php echo $author_role; ?></a>
 				</span>
 				<span class="author-controls sortable-flex-section">
@@ -332,7 +332,7 @@ function search_coauthors( $search_term, $post_ID ) {
 		// is ridiculously slow. Investigate refactoring.
 		$coauthors = array_udiff( $coauthors, $existing,
 			function( $author, $existing ) {
-				if ( (int) $author->ID == (int) $existing->ID )
+				if ( (int) $author->user_nicename == (int) $existing->user_nicename )
 					return 0; // zero represents equality here, like in compare. PHP why?
 				return 1;
 			}
@@ -423,8 +423,10 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 			// some type checking of its parameters, so we coerce the
 			// posted string into the expected types here.
 			list( $author, $role ) = explode( '|||', $coauthor );
-			$author = intval( $author );
+			$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
 			$role = get_author_role( $role );
+
+			var_dump( $author, $role );
 
 			set_contributor_on_post( $post_id, $author, $role );
 
