@@ -409,13 +409,13 @@ var coauthorsSelector, coauthorsSortable;
 			var list = '', alt = true, classes = '',
 				firstPage = params.page == 1;
 
-			if ( ! results ) {
+			if ( typeof results.success === 'undefined' || ! results.success ) {
 				if ( firstPage ) {
 					list += '<li class="unselectable no-matches-found"><span class="item-title"><em>' +
 						coauthorsL10n.noMatchesFound + '</em></span></li>';
 				}
 			} else {
-				$.each( results, function() {
+				$.each( results.data, function() {
 					classes = alt ? 'alternate' : '';
 					classes += this.post_title ? '' : ' no-title';
 					list += classes ? '<li class="' + classes + '">' : '<li>';

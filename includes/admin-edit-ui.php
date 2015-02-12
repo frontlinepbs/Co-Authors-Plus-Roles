@@ -351,7 +351,7 @@ function ajax_search_coauthors() {
 	$coauthors = search_coauthors( $search, $post_ID );
 
 	if ( $coauthors )
-		wp_send_json( array_values( $coauthors ) );
+		wp_send_json_success( array_values( $coauthors ) );
 	else
 		wp_send_json_error( 'No authors were found.' );
 
