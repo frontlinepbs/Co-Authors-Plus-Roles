@@ -412,14 +412,14 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 		// Right now it just appends, so you can never delete an author from a post.
 		foreach ( $new_coauthors as $coauthor ) {
 
-			// Parse and sanitize terms. `set_contributor_on_post` does
+			// Parse and sanitize terms. `set_author_on_post` does
 			// some type checking of its parameters, so we coerce the
 			// posted string into the expected types here.
 			list( $author, $role ) = explode( '|||', $coauthor );
 			$author = intval( $author );
 			$role = get_author_role( $role );
 
-			set_contributor_on_post( $post_id, $author, $role );
+			set_author_on_post( $post_id, $author, $role );
 
 		}
 	}
@@ -456,7 +456,7 @@ function action_update_coauthors_on_post( $post_id, $post ) {
 			$user = get_userdata( $post->post_author );
 
 			if ( $user )
-				set_contributor_on_post( $post_id, $user->user_login );
+				set_author_on_post( $post_id, $user->user_login );
 		}
 	}
 }
