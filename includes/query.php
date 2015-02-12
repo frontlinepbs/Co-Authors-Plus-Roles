@@ -97,27 +97,29 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 			$coauthors[] = $_coauthor;
 		}
 
-		// Now, get the author terms, in case of bylines or coauthors who were entered with CAP.
-		$coauthor_terms = get_the_terms( $post_id, $coauthors_plus->coauthor_taxonomy );
+		if ( $args['author_role'] === 'any' || !$args['author_role'] ||
+				is_array( $args['author_role'] ) && in_array( 'byline', $args['author_role'] ) ) {
 
-		if ( is_array( $coauthor_terms ) && ! empty( $coauthor_terms ) ) {
-			foreach ( $coauthor_terms as $coauthor ) {
-				$coauthor_slug = preg_replace( '#^cap\-#', '', $coauthor->slug );
-				$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
-				$post_author->author_role = 'byline';
+			// Now, get the author terms, in case of bylines or coauthors who were entered with CAP.
+			$coauthor_terms = get_the_terms( $post_id, $coauthors_plus->coauthor_taxonomy );
 
-				// In case the user has been deleted while plugin was deactivated
-				if ( ! empty( $post_author ) )
-					$coauthors[] = $post_author;
+			if ( is_array( $coauthor_terms ) && ! empty( $coauthor_terms ) ) {
+				foreach ( $coauthor_terms as $coauthor ) {
+					$coauthor_slug = preg_replace( '#^cap\-#', '', $coauthor->slug );
+
+					// Since some authors may have also been added through postmeta, skip them here
+					// so as not to include duplicate authors in results.
+					if ( in_array( $coauthor_slug, wp_list_pluck( $coauthors, 'user_nicename' ) ) )
+						continue;
+
+					$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
+					$post_author->author_role = 'byline';
+
+					// In case the user has been deleted while plugin was deactivated
+					if ( ! empty( $post_author ) )
+						$coauthors[] = $post_author;
+				}
 			}
-		} else if ( ! $coauthors_plus->force_guest_authors ) {
-			if ( $post && $post_id == $post->ID ) {
-				$post_author = get_userdata( $post->post_author );
-			} else {
-				$post_author = get_userdata( $wpdb->get_var( $wpdb->prepare( "SELECT post_author FROM $wpdb->posts WHERE ID = %d", $post_id ) ) );
-			}
-			if ( ! empty( $post_author ) )
-				$coauthors[] = $post_author;
 		}
 	}
 	return $coauthors;

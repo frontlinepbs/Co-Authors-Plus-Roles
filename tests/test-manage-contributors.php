@@ -130,9 +130,6 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 
 		$user1 = get_userdata( $this->author1 );
 
-		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
-			array( "{$user1->user_login}|||author", "guest-author-through-ui|||contributor" )
-		);
 		// Calling update_coauthors_on_post with an array should add all the new authors
 		// Using: one WP_User, and one of Guest Author post type
 		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
@@ -140,7 +137,7 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		);
 
 		// Both should show up in a query with author_role = any
-		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => false ) );
 		$this->assertContains( $user1->user_login, wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 

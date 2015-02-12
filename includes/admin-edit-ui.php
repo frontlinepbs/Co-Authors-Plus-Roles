@@ -424,10 +424,6 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 			// posted string into the expected types here.
 			list( $author, $role ) = explode( '|||', $coauthor );
 			$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
-			$role = get_author_role( $role );
-
-			var_dump( $author, $role );
-
 			set_contributor_on_post( $post_id, $author, $role );
 
 		}
