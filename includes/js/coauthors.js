@@ -113,8 +113,8 @@ var coauthorsSelector, coauthorsSortable;
 			coauthorsSelector.range = null;
 
 			inputs.header.text( function() {
-				return currentlyEditing ? 
-					coauthorsL10n.editExistingAuthorHeader : 
+				return currentlyEditing ?
+					coauthorsL10n.editExistingAuthorHeader :
 					coauthorsL10n.addNewAuthorHeader;
 			});
 
@@ -432,7 +432,7 @@ var coauthorsSelector, coauthorsSortable;
 					classes = alt ? 'alternate' : '';
 					classes += this.post_title ? '' : ' no-title';
 					list += classes ? '<li class="' + classes + '">' : '<li>';
-					list += '<input type="hidden" class="item-id" value="' + this.ID + '" />';
+					list += '<input type="hidden" class="item-id" value="' + this.display_name + '" />';
 					list += '<span class="item-title">';
 					list += this.display_name ? this.display_name : coauthorsL10n.noTitle;
 					list += '</span><span class="item-info">' + this.type.replace('-',' ') + '</span></li>';

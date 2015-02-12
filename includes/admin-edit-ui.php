@@ -204,7 +204,7 @@ function ajax_template_coauthor_sortable() {
 	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_template_nonce' );
 	global $coauthors_plus;
 
-	$coauthor = $coauthors_plus->get_coauthor_by( 'id', intval( $_REQUEST['authorId'] ) );
+	$coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', $_REQUEST['authorId'] );
 	$role = get_author_role( $_REQUEST['authorRole'] );
 
 	if ( ! $coauthor || ! $role ) {
@@ -371,7 +371,7 @@ function ajax_search_coauthors() {
 	$coauthors = search_coauthors( $search, $post_ID );
 
 	if ( $coauthors ) {
-		wp_send_json( array_values( $coauthors ) );
+		wp_send_json_success( array_values( $coauthors ) );
 	} else {
 		wp_send_json_error( 'No authors were found.' );
 	}
@@ -421,7 +421,8 @@ function get_top_authors() {
  * Update the co-authors on a post on saving.
  *
  * @param int $post_ID
- * @param array $new_coauthors Array of strings in the format posted by the sortables in the meta box.
+ * @param array $new_coauthors Array of strings in the format "{nicename}|||{role}"
+ *                              as posted by the sortables in the meta box.
  */
 function update_coauthors_on_post( $post_id, $new_coauthors ) {
 	global $coauthors_plus;
@@ -432,18 +433,59 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 	}
 
 	if ( $new_coauthors && is_array( $new_coauthors ) ) {
-		// XXX This should diff against the already added coauthors, or alternately just wipe them every time.
-		// Right now it just appends, so you can never delete an author from a post.
-		foreach ( $new_coauthors as $coauthor ) {
 
-			// Parse and sanitize terms. `set_author_on_post` does
-			// some type checking of its parameters, so we coerce the
-			// posted string into the expected types here.
-			list( $author, $role ) = explode( '|||', $coauthor );
-			$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
-			set_author_on_post( $post_id, $author, $role );
+		// Convert the new coauthors array from the string format used on inputs from the post edit
+		// screen into proper objects which can be compared with existing coauthors.
+		$new_coauthors = array_filter(
+			array_map(
+				function( $coauthor_string ) {
+					global $coauthors_plus;
 
+					list( $author_name, $role ) = explode( '|||', $coauthor_string );
+					$new_coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', $author_name );
+					if ( $new_coauthor ) {
+						$new_coauthor->author_role = $role;
+						return $new_coauthor;
+					}
+				}, $new_coauthors
+			)
+		);
+
+		// Diff new data against the already added coauthors. If they aren't identical, wipe the old postmeta and re-add.
+		$existing_coauthors = get_coauthors( $post_id, array( 'author_role' => 'any' ) );
+
+		$difference = false;
+		for ( $i=0; $i<=max( count( $new_coauthors ), count( $existing_coauthors ) ); $i++ ) {
+			if ( ! isset( $new_coauthors[$i] ) || !isset( $existing_coauthors[ $i ] ) ) {
+				$difference = true; break;
+			}
+			if ( $new_coauthors[ $i ]->display_name !== $existing_coauthors[ $i ]->display_name ) {
+				$difference = true; break;
+			}
+			if ( $new_coauthors[ $i ]->author_role !== $existing_coauthors[ $i ]->author_role ) {
+				$difference = true; break;
+			}
 		}
+
+		if ( $difference ) {
+			remove_all_coauthor_meta( $post_id );
+			foreach ( $new_coauthors as $coauthor ) {
+				set_author_on_post( $post_id, $coauthor, $coauthor->author_role );
+			}
+		}
+
+		// Use $coauthors_plus->set_coauthors to update byline roles. This clears the existing terms and
+		// re-adds them in the correct order.
+		$new_byline_coauthors = array_filter(
+			$new_coauthors,
+			function( $author ) {
+				return ( empty( $author->author_role ) || in_array( $author->author_role, byline_roles() ) );
+			}
+		);
+
+		$byline_coauthors_slugs = wp_list_pluck( $new_byline_coauthors, 'user_nicename' );
+
+		$coauthors_plus->add_coauthors( $post_id, $byline_coauthors_slugs, false );
 	}
 }
 

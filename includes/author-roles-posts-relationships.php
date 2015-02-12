@@ -27,10 +27,8 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 
 	$post_id = intval( $post_id );
 
-	if ( is_string( $author ) && intval( $author ) != $author ) {
+	if ( is_string( $author ) ) {
 		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
-	} else if ( is_int( $author ) ) {
-		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
 	}
 
 	if ( ! isset( $author->user_nicename ) ) {
@@ -63,7 +61,29 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 		return false;
 	}
 
-	update_post_meta( $post_id, 'cap-' . $author_role->slug, $author->user_nicename );
+	add_post_meta( $post_id, 'cap-' . $author_role->slug, $author->user_nicename );
+}
+
+
+/**
+ * Clear all coauthor data on a post.
+ *
+ * Used when updating coauthors, as otherwise there's no way of ordering them.
+ *
+ * @param int $post_id Post to remove coauthor postmeta from
+ */
+function remove_all_coauthor_meta( $post_id ) {
+	$post_meta = get_post_meta( $post_id );
+	$user_nicenames = wp_list_pluck( get_top_authors(), 'user_nicename' );
+
+	foreach ( $post_meta as $key => $values ) {
+		if ( strpos( $key, 'cap-' === 0 ) ) {
+			foreach ( $values as $value ) {
+				if ( in_array( $value, $user_nicenames ) )
+					delete_post_meta( $post_id, $key, $value );
+			}
+		}
+	}
 }
 
 
