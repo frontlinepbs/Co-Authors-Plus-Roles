@@ -42,11 +42,11 @@ function register_author_role( $slug, $args = array() ) {
 	$defaults = array(
 		'slug' => $slug,
 		'byline' => false,
-		'name' => __( $name ),
+		'name' => $name,
 		'labels' => array(
-			'name_user_role_singular' => __( $name ),
-			'name_user_role_plural' => __( $name ),
-			'post_relationship_by' => __( "$name by %s" )
+			'name_user_role_singular' => $name,
+			'name_user_role_plural' => $name,
+			'post_relationship_by' => "$name by %s"
 		)
 	);
 

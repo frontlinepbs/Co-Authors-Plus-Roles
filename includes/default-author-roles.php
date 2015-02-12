@@ -20,33 +20,33 @@ function register_default_author_roles() {
 	register_author_role( 'author',
 		array(
 			'byline' => true,
-			'name' => __( 'Author' ),
+			'name' => __( 'Author', 'co-authors-plus-roles' ),
 			'labels' => array(
-				'name_user_role_singular' => __( 'Author' ),
-				'name_user_role_plural' => __( 'Authors' ),
-				'post_relationship_by' => __( 'by %s' )
+				'name_user_role_singular' => __( 'Author', 'co-authors-plus-roles' ),
+				'name_user_role_plural' => __( 'Authors', 'co-authors-plus-roles' ),
+				'post_relationship_by' => __( 'by %s', 'co-authors-plus-roles' )
 			)
 		)
 	);
 	register_author_role( 'contributing-author',
 		array(
 			'byline' => false,
-			'name' => __( 'Contributing Author' ),
+			'name' => __( 'Contributing Author', 'co-authors-plus-roles' ),
 			'labels' => array(
-				'name_user_role_singular' => __( 'Contributing Author' ),
-				'name_user_role_plural' => __( 'Contributing Authors' ),
-				'post_relationship_by' => __( 'Additional Reporting by %s' )
+				'name_user_role_singular' => __( 'Contributing Author', 'co-authors-plus-roles' ),
+				'name_user_role_plural' => __( 'Contributing Authors', 'co-authors-plus-roles' ),
+				'post_relationship_by' => __( 'Additional Reporting by %s', 'co-authors-plus-roles' )
 			)
 		)
 	);
 	register_author_role( 'photographer',
 		array(
 			'byline' => false,
-			'name' => __( 'Photographer' ),
+			'name' => __( 'Photographer', 'co-authors-plus-roles' ),
 			'labels' => array(
-				'name_user_role_singular' => __( 'Photographer' ),
-				'name_user_role_plural' => __( 'Photographers' ),
-				'post_relationship_by' => __( 'Photography by %s' )
+				'name_user_role_singular' => __( 'Photographer', 'co-authors-plus-roles' ),
+				'name_user_role_plural' => __( 'Photographers', 'co-authors-plus-roles' ),
+				'post_relationship_by' => __( 'Photography by %s', 'co-authors-plus-roles' )
 			)
 		)
 	);
