@@ -213,7 +213,9 @@ function enqueue_scripts() {
 			'title' => __( 'Insert/edit author', 'co-authors-plus-roles' ),
 			'update' => __( 'Update', 'co-authors-plus-roles' ),
 			'save' => __( 'Add Author', 'co-authors-plus-roles' ),
-			'noMatchesFound' => __( 'No results found.', 'co-authors-plus-roles' )
+			'noMatchesFound' => __( 'No results found.', 'co-authors-plus-roles' ),
+			'addNewAuthorHeader' => __( 'Add new author to post', 'coauthors-plus-roles' ),
+			'editExistingAuthorHeader' => __( 'Edit author on post', 'coauthors-plus-roles' )
 		)
 	);
 }
@@ -233,7 +235,7 @@ function coauthor_select_dialog() {
 		<?php wp_nonce_field( 'coauthor-select', '_coauthor_select_nonce', false ); ?>
 		<input type="hidden" id="coauthor-post-id" value="<?php echo $post_id; ?>" />
 			<div id="coauthor-select-modal-title">
-				<?php _e( 'Add new contributor to post', 'coauthors-plus-roles' ) ?>
+				<span id="coauthor-select-header"></span>
 				<button type="button" id="coauthor-select-close">
 					<span class="screen-reader-text"><?php _e( 'Close' ); ?></span>
 				</button>
