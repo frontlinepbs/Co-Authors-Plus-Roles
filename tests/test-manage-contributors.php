@@ -5,14 +5,14 @@
  * These tests mirror the tests in test-manage-coauthors.php, but also include roles.
  */
 
-class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
+class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 
 	/**
 	 * Test registering, removing, and modifying a role.
 	 */
-	public function test_manage_author_roles() {
+	public function test_setup_and_remove_author_roles() {
 
-		// The default contributor roles should be active initially.
+		// The default author roles should be active initially.
 		$roles = get_author_roles();
 		$this->assertEquals( 3, count( $roles ) );
 		$this->assertEquals( 'Author', $roles['author']->name );
@@ -38,7 +38,7 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertEquals( $this->author1, get_post( $this->author1_post1 )->post_author );
 
 		// Add a coauthor in a non-byline role. Should not be returned by get_coauthors.
-		\CoAuthorsPlusRoles\set_contributor_on_post(
+		\CoAuthorsPlusRoles\set_author_on_post(
 			$this->author1_post1, $editor1, 'contributor'
 		);
 		$coauthors = get_coauthors( $this->author1_post1 );
@@ -50,7 +50,7 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertEquals( 2, count( $all_credits ) );
 
 		// Remove a co-author from a post
-		\CoAuthorsPlusRoles\remove_contributor_from_post( $this->author1_post1, $this->editor1 );
+		\CoAuthorsPlusRoles\remove_author_from_post( $this->author1_post1, $this->editor1 );
 		$all_credits = CoAuthorsPlusRoles\get_coauthors( $this->author1_post1, array( 'author_role' => 'any' ) );
 		$this->assertEquals( 1, count( $all_credits ) );
 
@@ -86,9 +86,9 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
 
-		// Setting a guest author as a contributor on a post should include
+		// Setting a guest author as an author on a post should include
 		// them in the get_coauthors() response for that post.
-		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_1_user_object );
+		\CoAuthorsPlusRoles\set_author_on_post( $post, $guest_author_1_user_object );
 		$all_credits_on_post = CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_credits_on_post, 'ID' ) );
 
@@ -98,7 +98,7 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 
 		// Setting a guest author as a non-byline role on a post should also include
 		// them in the get_coauthors() response for that post.
-		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_2_user_object, 'contributor' );
+		\CoAuthorsPlusRoles\set_author_on_post( $post, $guest_author_2_user_object, 'contributor' );
 		$all_credits_on_post = CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
 		$this->assertContains( $guest_author_2, wp_list_pluck( $all_credits_on_post, 'ID' ) );
 

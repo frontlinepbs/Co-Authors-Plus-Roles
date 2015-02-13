@@ -23,10 +23,12 @@ var coauthorsSelector, coauthorsSortable;
 			currentlyEditing = thisLi;
 
 			coauthorsSelector.open();
+
 			inputs.role.val( link.data('role') );
 			inputs.authorId.val( link.data('author-id') );
 			inputs.search.val( link.data('author-name') );
 
+			inputs.search.trigger('keyup');
 		},
 
 		init: function() {
@@ -51,6 +53,7 @@ var coauthorsSelector, coauthorsSortable;
 			inputs.backdrop = $( '#coauthor-select-backdrop' );
 			inputs.submit = $( '#coauthor-select-submit' );
 			inputs.close = $( '#coauthor-select-close' );
+			inputs.header = $( '#coauthor-select-header' );
 
 			// Inputs
 			inputs.role = $( '#coauthor-select-role' );
@@ -109,15 +112,26 @@ var coauthorsSelector, coauthorsSortable;
 
 			coauthorsSelector.range = null;
 
+			inputs.header.text( function() {
+				return currentlyEditing ? 
+					coauthorsL10n.editExistingAuthorHeader : 
+					coauthorsL10n.addNewAuthorHeader;
+			});
+
 			inputs.wrap.show();
 			inputs.backdrop.show();
 
 			coauthorsSelector.refresh();
-			$( document ).trigger( 'coauthors-select-open', inputs.wrap );
 
+			$( document ).trigger( 'coauthors-select-open', inputs.wrap );
 		},
 
 		refresh: function() {
+
+			// Reset each of the inputs
+			inputs.role.val();
+			inputs.authorId.val();
+			inputs.search.val();
 
 			// Refresh rivers (clear links, check visibility)
 			rivers.search.refresh();
@@ -408,13 +422,13 @@ var coauthorsSelector, coauthorsSortable;
 			var list = '', alt = true, classes = '',
 				firstPage = params.page == 1;
 
-			if ( ! results ) {
+			if ( typeof results.success === 'undefined' || ! results.success ) {
 				if ( firstPage ) {
 					list += '<li class="unselectable no-matches-found"><span class="item-title"><em>' +
 						coauthorsL10n.noMatchesFound + '</em></span></li>';
 				}
 			} else {
-				$.each( results, function() {
+				$.each( results.data, function() {
 					classes = alt ? 'alternate' : '';
 					classes += this.post_title ? '' : ' no-title';
 					list += classes ? '<li class="' + classes + '">' : '<li>';

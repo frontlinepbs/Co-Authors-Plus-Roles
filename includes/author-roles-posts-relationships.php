@@ -18,7 +18,7 @@ namespace CoAuthorsPlusRoles;
  * @param object|string $author_role Term or slug of contributor role to set. Defaults to "byline" if empty
  * @return bool True on success, false on failure (if any of the inputs are not acceptable).
  */
-function set_contributor_on_post( $post_id, $author, $author_role = false ) {
+function set_author_on_post( $post_id, $author, $author_role = false ) {
 	global $coauthors_plus, $wpdb;
 
 	if ( is_object( $post_id ) && isset( $post_id->ID ) ) {
@@ -50,7 +50,7 @@ function set_contributor_on_post( $post_id, $author, $author_role = false ) {
 
 	$drop_existing_role = $wpdb->query(
 		$wpdb->prepare(
-			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%d",
+			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%s",
 			array( $post_id, $author->user_nicename )
 		)
 	);
@@ -74,7 +74,7 @@ function set_contributor_on_post( $post_id, $author, $author_role = false ) {
  * @param object|string $author WP_User object, or nicename/user_login/slug
  * @return bool True on success, false on failure (if any of the inputs are not acceptable).
  */
-function remove_contributor_from_post( $post_id, $author ) {
+function remove_author_from_post( $post_id, $author ) {
 	global $coauthors_plus, $wpdb;
 
 	if ( is_object( $post_id ) && isset( $post_id->ID ) ) {
@@ -99,7 +99,7 @@ function remove_contributor_from_post( $post_id, $author ) {
 	// Delete meta value setting contributor on post
 	$drop_existing_role = $wpdb->query(
 		$wpdb->prepare(
-			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%d",
+			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%s",
 			array( $post_id, $author->user_nicename )
 		)
 	);

@@ -44,7 +44,7 @@ class CoAuthorsPlusRoles {
 			update_option( 'co_authors_plus_roles__notices',
 				array(
 					'class' => 'error',
-					'message' => __( 'You must have Co-Authors Plus installed and activated first in order to use this plugin.' )
+					'message' => __( 'You must have Co-Authors Plus installed and activated first in order to use this plugin.', 'co-authors-plus-roles' )
 				)
 			);
 			deactivate_plugins( __FILE__ );

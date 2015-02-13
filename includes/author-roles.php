@@ -1,6 +1,6 @@
 <?php
 /**
- * Registers the post type for "Contributor Roles", and provides a basic API
+ * Registers the post type for "Author Roles", and provides a basic API
  * for adding and removing roles.
  *
  */
@@ -32,7 +32,7 @@ add_action( 'init', '\CoAuthorsPlusRoles\create_author_roles', 0 );
  *
  * @param string $slug Slug to use for this contributor role
  * @param array $args Overrides to define this role
- * @return object the created WP_Contributor_Role object
+ * @return object the created WP_Author_Role object
  */
 function register_author_role( $slug, $args = array() ) {
 	global $_wp_author_roles;
@@ -42,11 +42,14 @@ function register_author_role( $slug, $args = array() ) {
 	$defaults = array(
 		'slug' => $slug,
 		'byline' => false,
-		'name' => __( $name ),
+		'name' => $name,
 		'labels' => array(
-			'name_user_role_singular' => __( $name ),
-			'name_user_role_plural' => __( $name ),
-			'post_relationship_by' => __( "$name by %s" )
+			'name_user_role_singular' => $name,
+			'name_user_role_plural' => $name,
+			'post_relationship_by' => sprintf(
+				_x( '%s by %s', 'role by author: Illustrated by Alice', 'co-authors-plus-roles' ),
+				$name, '%s'
+			)
 		)
 	);
 
@@ -76,7 +79,7 @@ function remove_author_role( $slug ) {
  *
  * @param string $slug Slug of role to remove
  * @param array $args Overrides to define this role
- * @return object the created WP_Contributor_Role object
+ * @return object the created WP_Author_Role object
  */
 function modify_author_role( $slug, $name, $args ) {
 	register_author_role( $slug, $name, $args );
@@ -99,7 +102,7 @@ function get_author_roles() {
  *
  * Useful for retrieving labels or settings attached to roles.
  *
- * @return object Contributor role object
+ * @return object Author role object
  */
 function get_author_role( $slug ) {
 	global $_wp_author_roles;
