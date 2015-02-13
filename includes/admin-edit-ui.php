@@ -114,8 +114,9 @@ function coauthors_meta_box( $post ) {
 	// have that field if the author hasn't been saved yet.
 	$coauthors = array_map(
 		function($author) {
-			if ( ! isset( $author->author_role ) )
+			if ( ! isset( $author->author_role ) ) {
 				$author->author_role = '';
+			}
 			return $author;
 		}, $coauthors );
 
@@ -152,11 +153,13 @@ function coauthors_meta_box( $post ) {
  *                                 Passing this second parameter will set it on the coauthor.
  */
 function template_coauthor_sortable( $coauthor, $author_role = null ) {
-	if ( $author_role )
+	if ( $author_role ) {
 		$coauthor->author_role = $author_role;
+	}
 
-	if ( ! isset( $coauthor->type ) )
+	if ( ! isset( $coauthor->type ) ) {
 		$coauthor->type = 'WP USER';
+	}
 
 	// The format in which these values are posted.
 	$coauthor_input_value = "{$coauthor->user_nicename}|||{$coauthor->author_role}";
@@ -206,8 +209,9 @@ function ajax_template_coauthor_sortable() {
 	$coauthor = $coauthors_plus->get_coauthor_by( 'id', intval( $_REQUEST['authorId'] ) );
 	$role = get_author_role( $_REQUEST['authorRole'] );
 
-	if ( ! $coauthor || ! $role )
+	if ( ! $coauthor || ! $role ) {
 		wp_die( 'Missing required information.' );
+	}
 
 	$coauthor->author_role = $role->slug;
 
@@ -242,8 +246,9 @@ function coauthor_select_dialog() {
 	global $post_ID, $post;
 
 	$post_id = $post_ID;
-	if ( ! isset( $post_id ) && isset( $post ) )
+	if ( ! isset( $post_id ) && isset( $post ) ) {
 		$post_id = $post->ID;
+	}
 
 		?>
 	<div id="coauthor-select-backdrop" style="display: none"></div>
@@ -331,10 +336,11 @@ function coauthor_select_dialog() {
 function search_coauthors( $search_term, $post_ID ) {
 	global $coauthors_plus;
 
-	if ( isset( $search_term ) && $search_term )
+	if ( isset( $search_term ) && $search_term ) {
 		$coauthors = $coauthors_plus->search_authors( $search_term );
-	else
+	} else {
 		$coauthors = get_top_authors();
+	}
 
 	if ( isset( $post_ID ) && intval( $post_ID ) > 0 ) {
 		$existing = get_coauthors( $post_ID );
@@ -343,8 +349,9 @@ function search_coauthors( $search_term, $post_ID ) {
 		// is ridiculously slow. Investigate refactoring.
 		$coauthors = array_udiff( $coauthors, $existing,
 			function( $author, $existing ) {
-				if ( (int) $author->user_nicename == (int) $existing->user_nicename )
+				if ( (int) $author->user_nicename == (int) $existing->user_nicename ) {
 					return 0; // zero represents equality here, like in compare. PHP why?
+				}
 				return 1;
 			}
 		);
@@ -368,10 +375,11 @@ function ajax_search_coauthors() {
 	$post_ID = isset( $_REQUEST['postId'] ) ? intval( $_REQUEST['postId'] ) : false;
 	$coauthors = search_coauthors( $search, $post_ID );
 
-	if ( $coauthors )
+	if ( $coauthors ) {
 		wp_send_json( array_values( $coauthors ) );
-	else
+	} else {
 		wp_send_json_error( 'No authors were found.' );
+	}
 
 	die(0);
 }
@@ -399,13 +407,15 @@ function get_top_authors() {
 		)
 	);
 
-	if ( ! $all_published_authors )
+	if ( ! $all_published_authors ) {
 		return false;
+	}
 
 	$coauthors = array();
 
-	foreach ( $all_published_authors as $author_term )
+	foreach ( $all_published_authors as $author_term ) {
 		$coauthors[] = $coauthors_plus->get_coauthor_by( 'user_nicename', $author_term );
+	}
 
 	// Because coauthors can include duplicates (in the case of linked accounts), uniq it first.
 	return array_unique( $coauthors, SORT_REGULAR );
@@ -422,8 +432,9 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 	global $coauthors_plus;
 
 	$post = get_post( $post_id );
-	if ( ! $coauthors_plus->is_post_type_enabled( $post->post_type ) )
+	if ( ! $coauthors_plus->is_post_type_enabled( $post->post_type ) ) {
 		return;
+	}
 
 	if ( $new_coauthors && is_array( $new_coauthors ) ) {
 		// XXX This should diff against the already added coauthors, or alternately just wipe them every time.
@@ -448,14 +459,17 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 function action_update_coauthors_on_post( $post_id, $post ) {
 	global $coauthors_plus;
 
-	if ( ! $post_id && isset( $_POST['post_ID'] ) )
+	if ( ! $post_id && isset( $_POST['post_ID'] ) ) {
 		$post_id = intval( $_POST['post_ID'] );
+	}
 
-	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 		return;
+	}
 
-	if ( empty( $_POST['coauthors'] ) )
+	if ( empty( $_POST['coauthors'] ) ) {
 		return;
+	}
 
 	if ( $coauthors_plus->current_user_can_set_authors( $post ) ) {
 		// if current_user_can_set_authors and nonce valid
@@ -471,8 +485,9 @@ function action_update_coauthors_on_post( $post_id, $post ) {
 		if ( ! $coauthors_plus->has_author_terms( $post_id ) ) {
 			$user = get_userdata( $post->post_author );
 
-			if ( $user )
+			if ( $user ) {
 				set_contributor_on_post( $post_id, $user->user_login );
+			}
 		}
 	}
 }

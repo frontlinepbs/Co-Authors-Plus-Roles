@@ -27,13 +27,15 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 
 	// Default to current post if $post_id is not set.
 	$post_id = (int)$post_id;
-	if ( ! $post_id && $post_ID )
+	if ( ! $post_id && $post_ID ) {
 		$post_id = $post_ID;
-	if ( ! $post_id && $post )
+	}
+	if ( ! $post_id && $post ) {
 		$post_id = $post->ID;
-
-	if ( ! $post_id )
+	}
+	if ( ! $post_id ) {
 		return;
+	}
 
 	// Querying for "bylines" (the default) should return the same results as in CAP
 	if ( $args['author_role'] === 'byline' ) {
@@ -58,8 +60,9 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 			} else {
 				$post_author = get_userdata( $wpdb->get_var( $wpdb->prepare( "SELECT post_author FROM $wpdb->posts WHERE ID = %d", $post_id ) ) );
 			}
-			if ( ! empty( $post_author ) )
+			if ( ! empty( $post_author ) ) {
 				$coauthors[] = $post_author;
+			}
 		} // the empty else case is because if we force guest authors, we don't ever care what value wp_posts.post_author has.
 	} else {
 		/*
@@ -109,15 +112,17 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 
 					// Since some authors may have also been added through postmeta, skip them here
 					// so as not to include duplicate authors in results.
-					if ( in_array( $coauthor_slug, wp_list_pluck( $coauthors, 'user_nicename' ) ) )
+					if ( in_array( $coauthor_slug, wp_list_pluck( $coauthors, 'user_nicename' ) ) ) {
 						continue;
+					}
 
 					$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
 					$post_author->author_role = 'byline';
 
 					// In case the user has been deleted while plugin was deactivated
-					if ( ! empty( $post_author ) )
+					if ( ! empty( $post_author ) ) {
 						$coauthors[] = $post_author;
+					}
 				}
 			}
 		}

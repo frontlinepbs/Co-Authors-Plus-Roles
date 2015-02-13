@@ -171,11 +171,12 @@ var coauthorsSelector, coauthorsSortable;
 				};
 
 			$.post( ajaxurl, query, function( r ) {
-				if ( currentlyEditing )
+				if ( currentlyEditing ) {
 					currentlyEditing.html( r )
-				else 
+				} else {
 					coauthorsSortable.list.append( r );
-				
+				}
+
 			});
 			this.close();
 
@@ -194,8 +195,9 @@ var coauthorsSelector, coauthorsSortable;
 				rivers.search.show();
 
 				// Don't search if the keypress didn't change the title.
-				if ( coauthorsSelector.lastSearch == search )
+				if ( coauthorsSelector.lastSearch == search ) {
 					return;
+				}
 
 				coauthorsSelector.lastSearch = search;
 				waiting = t.parent().find('.spinner').show();
@@ -269,19 +271,22 @@ var coauthorsSelector, coauthorsSortable;
 		delayedCallback: function( func, delay ) {
 			var timeoutTriggered, funcTriggered, funcArgs, funcContext;
 
-			if ( ! delay )
+			if ( ! delay ) {
 				return func;
+			}
 
 			setTimeout( function() {
-				if ( funcTriggered )
+				if ( funcTriggered ) {
 					return func.apply( funcContext, funcArgs );
+				}
 				// Otherwise, wait.
 				timeoutTriggered = true;
 			}, delay );
 
 			return function() {
-				if ( timeoutTriggered )
+				if ( timeoutTriggered ) {
 					return func.apply( this, arguments );
+				}
 				// Otherwise, wait.
 				funcArgs = arguments;
 				funcContext = this;
@@ -329,8 +334,9 @@ var coauthorsSelector, coauthorsSortable;
 		select: function( li, event ) {
 			var liHeight, elHeight, liTop, elTop;
 
-			if ( li.hasClass( 'unselectable' ) || li == this.selected )
+			if ( li.hasClass( 'unselectable' ) || li == this.selected ) {
 				return;
+			}
 
 			this.deselect();
 			this.selected = li.addClass( 'selected' );
@@ -349,43 +355,50 @@ var coauthorsSelector, coauthorsSortable;
 			this.element.trigger( 'coauthors-river-select', [ li, event, this ] );
 		},
 		deselect: function() {
-			if ( this.selected )
+			if ( this.selected ) {
 				this.selected.removeClass( 'selected' );
+			}
 			this.selected = false;
 		},
 		prev: function() {
-			if ( ! this.visible )
+			if ( ! this.visible ) {
 				return;
+			}
 
 			var to;
 			if ( this.selected ) {
 				to = this.selected.prev( 'li' );
-				if ( to.length )
+				if ( to.length ) {
 					this.select( to );
+				}
 			}
 		},
 		next: function() {
-			if ( ! this.visible )
+			if ( ! this.visible ) {
 				return;
+			}
 
 			var to = this.selected ? this.selected.next( 'li' ) : $( 'li:not(.unselectable):first', this.element );
-			if ( to.length )
+			if ( to.length ) {
 				this.select( to );
+			}
 		},
 		ajax: function( callback ) {
 			var self = this,
 				delay = this.query.page == 1 ? 0 : coauthorsSelector.minRiverAJAXDuration,
 				response = coauthorsSelector.delayedCallback( function( results, params ) {
 					self.process( results, params );
-					if ( callback )
+					if ( callback ) {
 						callback( results, params );
+					}
 				}, delay );
 
 			this.query.ajax( response );
 		},
 		change: function( search ) {
-			if ( this.query && this._search == search )
+			if ( this.query && this._search == search ) {
 				return;
+			}
 
 			this._search = search;
 			this.query = new Query( search );
@@ -420,15 +433,17 @@ var coauthorsSelector, coauthorsSortable;
 				el = this.element,
 				bottom = el.scrollTop() + el.height();
 
-			if ( ! this.query.ready() || bottom < this.contentHeight.height() - coauthorsSelector.riverBottomThreshold )
+			if ( ! this.query.ready() || bottom < this.contentHeight.height() - coauthorsSelector.riverBottomThreshold ) {
 				return;
+			}
 
 			setTimeout(function() {
 				var newTop = el.scrollTop(),
 					newBottom = newTop + el.height();
 
-				if ( ! self.query.ready() || newBottom < self.contentHeight.height() - coauthorsSelector.riverBottomThreshold )
+				if ( ! self.query.ready() || newBottom < self.contentHeight.height() - coauthorsSelector.riverBottomThreshold ) {
 					return;
+				}
 
 				self.waiting.show();
 				el.scrollTop( newTop + self.waiting.outerHeight() );
@@ -460,8 +475,9 @@ var coauthorsSelector, coauthorsSortable;
 					'_ajax_coauthor_search_nonce' : inputs.nonce.val()
 				};
 
-			if ( this.search )
+			if ( this.search ) {
 				query.search = this.search;
+			}
 
 			this.querying = true;
 

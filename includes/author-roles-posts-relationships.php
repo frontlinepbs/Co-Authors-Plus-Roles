@@ -21,27 +21,32 @@ namespace CoAuthorsPlusRoles;
 function set_contributor_on_post( $post_id, $author, $author_role = false ) {
 	global $coauthors_plus, $wpdb;
 
-	if ( is_object( $post_id ) && isset( $post_id->ID ) )
+	if ( is_object( $post_id ) && isset( $post_id->ID ) ) {
 		$post_id = $post_id->ID;
+	}
 
 	$post_id = intval( $post_id );
 
-	if ( is_string( $author ) && intval( $author ) != $author )
+	if ( is_string( $author ) && intval( $author ) != $author ) {
 		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
-	else if ( is_int( $author ) )
+	} else if ( is_int( $author ) ) {
 		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
+	}
 
-	if ( ! isset( $author->user_nicename ) )
+	if ( ! isset( $author->user_nicename ) ) {
 		return false;
+	}
 
 	// Only create the byline term if the contributor role is:
 	//  - one of the byline roles, as set in register_author_role(), or
 	//  - unset, meaning they should default to primary author role.
-	if ( ! $author_role || in_array( $author_role, byline_roles() ) )
+	if ( ! $author_role || in_array( $author_role, byline_roles() ) ) {
 		$coauthors_plus->add_coauthors( $post_id, array( $author->user_nicename ), true );
+	}
 
-	if ( ! $post_id || ! $author )
+	if ( ! $post_id || ! $author ) {
 		return false;
+	}
 
 	$drop_existing_role = $wpdb->query(
 		$wpdb->prepare(
@@ -54,8 +59,9 @@ function set_contributor_on_post( $post_id, $author, $author_role = false ) {
 		$author_role = get_author_role( $author_role );
 	}
 
-	if ( ! $author_role )
+	if ( ! $author_role ) {
 		return false;
+	}
 
 	update_post_meta( $post_id, 'cap-' . $author_role->slug, $author->user_nicename );
 }
@@ -71,16 +77,19 @@ function set_contributor_on_post( $post_id, $author, $author_role = false ) {
 function remove_contributor_from_post( $post_id, $author ) {
 	global $coauthors_plus, $wpdb;
 
-	if ( is_object( $post_id ) && isset( $post_id->ID ) )
+	if ( is_object( $post_id ) && isset( $post_id->ID ) ) {
 		$post_id = $post_id->ID;
+	}
 
 	$post_id = intval( $post_id );
 
-	if ( is_string( $author ) )
+	if ( is_string( $author ) ) {
 		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
+	}
 
-	if ( is_int( $author ) )
+	if ( is_int( $author ) ) {
 		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
+	}
 
 	// Remove byline term from post: Start by getting the author terms on the post.
 	$existing_authors = wp_get_object_terms( $post_id, $coauthors_plus->coauthor_taxonomy, array( 'fields' => 'slugs' ) );

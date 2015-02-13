@@ -104,11 +104,13 @@ function get_author_roles() {
 function get_author_role( $slug ) {
 	global $_wp_author_roles;
 
-	if ( strpos( $slug, 'cap-' ) === 0 )
+	if ( strpos( $slug, 'cap-' ) === 0 ) {
 		$slug = strstr( $slug, 4 );
+	}
 
-	if ( ! isset( $_wp_author_roles[ $slug ] ) )
+	if ( ! isset( $_wp_author_roles[ $slug ] ) ) {
 		return false;
+	}
 
 	return $_wp_author_roles[ $slug ];
 }
