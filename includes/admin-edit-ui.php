@@ -343,16 +343,12 @@ function search_coauthors( $search_term, $post_ID ) {
 	}
 
 	if ( isset( $post_ID ) && intval( $post_ID ) > 0 ) {
-		$existing = get_coauthors( $post_ID );
+		$existing_authors = get_coauthors( $post_ID, array( 'author_role' => 'any' ) );
 
-		// XXX: I suspect, but haven't measured, that this comparator function
-		// is ridiculously slow. Investigate refactoring.
-		$coauthors = array_udiff( $coauthors, $existing,
+		// Remove array elements from $coauthors that are identical to existing authors.
+		$coauthors = array_udiff( $coauthors, $existing_authors,
 			function( $author, $existing ) {
-				if ( (int) $author->user_nicename == (int) $existing->user_nicename ) {
-					return 0; // zero represents equality here, like in compare. PHP why?
-				}
-				return 1;
+				return strcmp( $author->user_nicename, $existing->user_nicename );
 			}
 		);
 	}

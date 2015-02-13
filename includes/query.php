@@ -87,16 +87,16 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 		// Because $wpdb->prepare would add slashes to my IN() clause...
 		$meta_key_in = "( '" . implode( "','", array_map( 'esc_sql', $roles_meta_keys ) ) . "' )";
 
-		$coauthor_ids = $wpdb->get_results(
+		$coauthor_nicenames = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key IN {$meta_key_in};",
 				array( $post_id )
 			)
 		);
 
-		foreach ( $coauthor_ids as $coauthor_id ) {
-			$_coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_id->meta_value );
-			$_coauthor->author_role = strstr( $coauthor_id->meta_key, 4 );
+		foreach ( $coauthor_nicenames as $coauthor_nicename ) {
+			$_coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_nicename->meta_value );
+			$_coauthor->author_role = substr( $coauthor_nicename->meta_key, 4 );
 			$coauthors[] = $_coauthor;
 		}
 

@@ -82,6 +82,10 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$guest_author_1_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_1 );
 		$guest_author_2_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_2 );
 
+		// search_coauthors() on a post with no search term specified should return all coauthors on the site
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$this->assertContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
+
 		// Setting a guest author as a contributor on a post should include
 		// them in the get_coauthors() response for that post.
 		\CoAuthorsPlusRoles\set_contributor_on_post( $post, $guest_author_1_user_object );
@@ -98,7 +102,8 @@ class Test_Manage_ContributorRoles extends CoAuthorsPlusRoles_TestCase {
 		$all_credits_on_post = CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
 		$this->assertContains( $guest_author_2, wp_list_pluck( $all_credits_on_post, 'ID' ) );
 
-		// After adding author to post, search_coauthors() on that post should no longer return them.
+		// After adding author to post in non-byline role, search_coauthors() on that post should no
+		// longer return them.
 		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
 		$this->assertNotContains( $guest_author_2, wp_list_pluck( $all_contributors, 'ID' ) );
 
