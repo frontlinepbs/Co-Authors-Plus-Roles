@@ -101,7 +101,6 @@ function coauthors_meta_box( $post ) {
 	}
 	// -- end copypasta
 
-	echo '<h2 style="margin-bottom:0">' . __( 'Author(s)', 'co-authors-plus-roles' ) . '</h2>';
 	echo '<p>' . __( 'Click on an author to change them. Drag to change their order. Click on <b>Remove</b> to remove them.', 'co-authors-plus-roles' ) . '</p>';
 
 	wp_nonce_field( 'coauthors_save', 'edit_coauthorsplus_roles_nonce' );
