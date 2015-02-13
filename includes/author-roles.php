@@ -46,7 +46,10 @@ function register_author_role( $slug, $args = array() ) {
 		'labels' => array(
 			'name_user_role_singular' => $name,
 			'name_user_role_plural' => $name,
-			'post_relationship_by' => "$name by %s"
+			'post_relationship_by' => sprintf(
+				_x( '%s by %s', 'role by author: Illustrated by Alice', 'co-authors-plus-roles' ),
+				$name, '%s'
+			)
 		)
 	);
 
