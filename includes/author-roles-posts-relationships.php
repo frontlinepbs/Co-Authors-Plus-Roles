@@ -19,7 +19,7 @@ namespace CoAuthorsPlusRoles;
  * @return bool True on success, false on failure (if any of the inputs are not acceptable).
  */
 function set_author_on_post( $post_id, $author, $author_role = false ) {
-	global $coauthors_plus, $wpdb;
+	global $coauthors_plus;
 
 	if ( is_object( $post_id ) && isset( $post_id->ID ) ) {
 		$post_id = $post_id->ID;
@@ -46,12 +46,11 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 		return false;
 	}
 
-	$drop_existing_role = $wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%s",
-			array( $post_id, $author->user_nicename )
-		)
-	);
+	foreach ( get_post_meta( $post_id ) as $key => $values ) {
+		if ( strpos( $key, 'cap-' ) === 0 && in_array( $author->user_nicename, $values ) ) {
+			delete_post_meta( $post_id, $key, $author->user_nicename );
+		}
+	}
 
 	if ( ! is_object( $author_role ) ) {
 		$author_role = get_author_role( $author_role );
@@ -95,7 +94,7 @@ function remove_all_coauthor_meta( $post_id ) {
  * @return bool True on success, false on failure (if any of the inputs are not acceptable).
  */
 function remove_author_from_post( $post_id, $author ) {
-	global $coauthors_plus, $wpdb;
+	global $coauthors_plus;
 
 	if ( is_object( $post_id ) && isset( $post_id->ID ) ) {
 		$post_id = $post_id->ID;
@@ -117,11 +116,10 @@ function remove_author_from_post( $post_id, $author ) {
 	wp_set_object_terms( $post_id, $new_authors, $coauthors_plus->coauthor_taxonomy, true );
 
 	// Delete meta value setting contributor on post
-	$drop_existing_role = $wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%s",
-			array( $post_id, $author->user_nicename )
-		)
-	);
+	foreach ( get_post_meta( $post_id ) as $key => $values ) {
+		if ( strpos( $key, 'cap-' ) === 0 && in_array( $author->display_name, $values ) ) {
+			delete_post_meta( $post_id, $key, $author->display_name );
+		}
+	}
 }
 

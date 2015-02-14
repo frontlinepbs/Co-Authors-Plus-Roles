@@ -65,6 +65,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 			}
 		} // the empty else case is because if we force guest authors, we don't ever care what value wp_posts.post_author has.
 	} else {
+
 		/*
 		 * Any other queries need to be performed using postmeta fields.
 		 *
@@ -79,25 +80,24 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 			$author_roles = $args['author_role'];
 		}
 
+		// Get the terms as stored in post meta: look up all the author roles passed in by function
+		// arguments (to whitelist arguments), and return the slug for each as would be used in post meta keys.
 		$roles_meta_keys = array_map(
 			function( $term ) { return 'cap-' . $term; },
 			array_filter( $author_roles, 'CoAuthorsPlusRoles\get_author_role' )
 		);
 
-		// Because $wpdb->prepare would add slashes to my IN() clause...
-		$meta_key_in = "( '" . implode( "','", array_map( 'esc_sql', $roles_meta_keys ) ) . "' )";
+		// Get all coauthors on this post, from post meta values
+		$coauthor_nicenames = array();
 
-		$coauthor_nicenames = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key IN {$meta_key_in};",
-				array( $post_id )
-			)
-		);
-
-		foreach ( $coauthor_nicenames as $coauthor_nicename ) {
-			$_coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_nicename->meta_value );
-			$_coauthor->author_role = substr( $coauthor_nicename->meta_key, 4 );
-			$coauthors[] = $_coauthor;
+		foreach ( get_post_meta( $post_id ) as $key => $values ) {
+			if ( in_array( $key, $roles_meta_keys ) ) {
+				foreach ( $values as $author_name ) {
+					$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author_name );
+					$author->author_role = get_author_role( substr( $key, 4 ) );
+					$coauthors[] = $author;
+				}
+			}
 		}
 
 		if ( $args['author_role'] === 'any' || !$args['author_role'] ||
