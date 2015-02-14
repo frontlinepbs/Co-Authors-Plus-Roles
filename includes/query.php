@@ -108,6 +108,8 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 			// Now, get the author terms, in case of bylines or coauthors who were entered with CAP.
 			$coauthor_terms = get_the_terms( $post_id, $coauthors_plus->coauthor_taxonomy );
 
+			$byline_coauthors = array();
+
 			if ( is_array( $coauthor_terms ) && ! empty( $coauthor_terms ) ) {
 				foreach ( $coauthor_terms as $coauthor ) {
 					$coauthor_slug = preg_replace( '#^cap\-#', '', $coauthor->slug );
@@ -123,10 +125,12 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 
 					// In case the user has been deleted while plugin was deactivated
 					if ( ! empty( $post_author ) ) {
-						$coauthors[] = $post_author;
+						$byline_coauthors[] = $post_author;
 					}
 				}
 			}
+
+			$coauthors = array_merge( $byline_coauthors, $coauthors );
 		}
 	}
 	return $coauthors;
