@@ -75,15 +75,17 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
  * @param int $post_id Post to remove coauthor postmeta from
  */
 function remove_all_coauthor_meta( $post_id ) {
-	$post_meta = get_post_meta( $post_id );
-	$user_nicenames = wp_list_pluck( get_top_authors(), 'user_nicename' );
 
-	foreach ( $post_meta as $key => $values ) {
-		if ( strpos( $key, 'cap-' === 0 ) ) {
-			foreach ( $values as $value ) {
-				if ( in_array( $value, $user_nicenames ) )
-					delete_post_meta( $post_id, $key, $value );
-			}
+	// Get the author_role terms as they would be stored in post meta: look up all the author roles
+	// registered, and add the "cap-" prefix to generate the key used here.
+	$roles_meta_keys = array_map(
+		function( $term ) { return 'cap-' . $term->slug; },
+		get_author_roles()
+	);
+
+	foreach ( get_post_meta( $post_id ) as $key => $values ) {
+		if ( in_array( $key, $roles_meta_keys ) ) {
+			delete_post_meta( $post_id, $key );
 		}
 	}
 }

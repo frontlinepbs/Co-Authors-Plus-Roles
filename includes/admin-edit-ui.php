@@ -176,7 +176,7 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 					<span class="author-name"><?php echo $coauthor->display_name; ?></span>
 					<span class="author-email"><?php echo $coauthor->user_email; ?></span>
 				</span>
-				<?php $author_role = ( isset( $coauthor->author_role ) ) ?
+				<?php $author_role = ( ! empty( $coauthor->author_role ) ) ?
 										$coauthor->author_role : 'BYLINE'; ?>
 				<span class="author-role sortable-flex-section">
 					<a class="edit-coauthor"
@@ -240,7 +240,9 @@ function enqueue_scripts() {
 			'save' => __( 'Add Author', 'co-authors-plus-roles' ),
 			'noMatchesFound' => __( 'No results found.', 'co-authors-plus-roles' ),
 			'addNewAuthorHeader' => __( 'Add new author to post', 'coauthors-plus-roles' ),
-			'editExistingAuthorHeader' => __( 'Edit author on post', 'coauthors-plus-roles' )
+			'editExistingAuthorHeader' => __( 'Edit author on post', 'coauthors-plus-roles' ),
+			'addNewAuthorButton' => __( 'Add author to post', 'coauthors-plus-roles' ),
+			'editExistingAuthorButton' => __( 'Save changes to author', 'coauthors-plus-roles' )
 		)
 	);
 }

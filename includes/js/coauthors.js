@@ -20,9 +20,8 @@ var coauthorsSelector, coauthorsSortable;
 				thisLi = link.closest('li.coauthor-sortable'),
 				thisAuthor = link.data( 'author-id' );
 
+			coauthorsSelector.open( thisLi );
 			currentlyEditing = thisLi;
-
-			coauthorsSelector.open();
 
 			inputs.role.val( link.data('role') );
 			inputs.authorId.val( link.data('author-id') );
@@ -31,11 +30,17 @@ var coauthorsSelector, coauthorsSortable;
 			inputs.search.trigger('keyup');
 		},
 
+		openSelectorForNewElement: function(evt) {
+			currentlyEditing = false;
+			coauthorsSelector.open( false );
+			coauthorsSelector.refresh();
+		},
+
 		init: function() {
 			this.list.sortable();
 			this.list.on( 'click', 'a.remove-coauthor', this.removeSortableLi );
 			this.list.on( 'click', 'a.edit-coauthor', this.openSelectorToEdit );
-			this.toggle.on( 'click', coauthorsSelector.open );
+			this.toggle.on( 'click', this.openSelectorForNewElement );
 		}
 	};
 
@@ -84,6 +89,7 @@ var coauthorsSelector, coauthorsSortable;
 			inputs.close.add( inputs.backdrop ).add( '#coauthor-select-cancel a' ).click( function( event ) {
 				event.preventDefault();
 				coauthorsSelector.close();
+				currentlyEditing = false;
 			});
 
 			rivers.elements.on( 'coauthors-river-select', coauthorsSelector.updateFields );
@@ -107,7 +113,7 @@ var coauthorsSelector, coauthorsSortable;
 			});
 		},
 
-		open: function() {
+		open: function( currentlyEditing ) {
 			$( document.body ).addClass( 'modal-open' );
 
 			coauthorsSelector.range = null;
@@ -116,6 +122,12 @@ var coauthorsSelector, coauthorsSortable;
 				return currentlyEditing ?
 					coauthorsL10n.editExistingAuthorHeader :
 					coauthorsL10n.addNewAuthorHeader;
+			});
+
+			inputs.submit.attr( 'value',  function() {
+				return currentlyEditing ?
+					coauthorsL10n.editExistingAuthorButton :
+					coauthorsL10n.addNewAuthorButton;
 			});
 
 			inputs.wrap.show();
@@ -156,9 +168,13 @@ var coauthorsSelector, coauthorsSortable;
 		close: function() {
 			$( document.body ).removeClass( 'modal-open' );
 
-			currentlyEditing = false;
 			inputs.backdrop.hide();
 			inputs.wrap.hide();
+
+			window.setTimeout(
+				function() { coauthorsSelector.refresh(); }, 5000
+			);
+
 			$( document ).trigger( 'coauthor-select-close', inputs.wrap );
 		},
 
@@ -187,6 +203,7 @@ var coauthorsSelector, coauthorsSortable;
 			$.post( ajaxurl, query, function( r ) {
 				if ( currentlyEditing ) {
 					currentlyEditing.html( r )
+					currentlyEditing = false;
 				} else {
 					coauthorsSortable.list.append( r );
 				}
@@ -432,7 +449,7 @@ var coauthorsSelector, coauthorsSortable;
 					classes = alt ? 'alternate' : '';
 					classes += this.post_title ? '' : ' no-title';
 					list += classes ? '<li class="' + classes + '">' : '<li>';
-					list += '<input type="hidden" class="item-id" value="' + this.display_name + '" />';
+					list += '<input type="hidden" class="item-id" value="' + this.user_nicename + '" />';
 					list += '<span class="item-title">';
 					list += this.display_name ? this.display_name : coauthorsL10n.noTitle;
 					list += '</span><span class="item-info">' + this.type.replace('-',' ') + '</span></li>';
