@@ -163,6 +163,12 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 		$this->assertEquals( 'guest-author-through-ui', $updated_coauthors[0]->user_nicename );
 
+		// Updating an individual coauthor; should change role (sorting is presently undefined...)
+		\CoAuthorsPlusRoles\set_author_on_post( $post, 'guest-author-through-ui', 'author' );
+
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'author' ) );
+		$this->assertcount( 2, $updated_coauthors );
+
 	}
 
 }
