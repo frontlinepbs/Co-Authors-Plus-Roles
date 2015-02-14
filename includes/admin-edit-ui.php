@@ -159,6 +159,10 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 		$coauthor->type = 'WP USER';
 	}
 
+	if ( ! isset( $coauthor->author_role ) ) {
+		$coauthor->author_role = '';
+	}
+
 	// The format in which these values are posted.
 	$coauthor_input_value = "{$coauthor->user_nicename}|||{$coauthor->author_role}";
 	?>

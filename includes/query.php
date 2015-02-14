@@ -94,7 +94,9 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 			if ( in_array( $key, $roles_meta_keys ) ) {
 				foreach ( $values as $author_name ) {
 					$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author_name );
-					$author->author_role = get_author_role( substr( $key, 4 ) );
+					if ( $role = get_author_role( substr( $key, 4 ) ) ) {
+						$author->author_role = $role->slug;
+					}
 					$coauthors[] = $author;
 				}
 			}
