@@ -180,7 +180,7 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 										$coauthor->author_role : 'BYLINE'; ?>
 				<span class="author-role sortable-flex-section">
 					<a class="edit-coauthor"
-						data-author-name="<?php echo $coauthor->display_name; ?>"
+						data-author-name="<?php echo $coauthor->user_nicename; ?>"
 						data-role="<?php echo $author_role; ?>"
 						data-author-id="<?php echo $coauthor->user_nicename; ?>"
 						><?php echo $author_role; ?></a>
@@ -463,7 +463,7 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 			if ( ! isset( $new_coauthors[$i] ) || !isset( $existing_coauthors[ $i ] ) ) {
 				$difference = true; break;
 			}
-			if ( $new_coauthors[ $i ]->display_name !== $existing_coauthors[ $i ]->display_name ) {
+			if ( $new_coauthors[ $i ]->user_nicename !== $existing_coauthors[ $i ]->user_nicename ) {
 				$difference = true; break;
 			}
 			if ( $new_coauthors[ $i ]->author_role !== $existing_coauthors[ $i ]->author_role ) {

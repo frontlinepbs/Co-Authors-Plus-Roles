@@ -169,6 +169,10 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'author' ) );
 		$this->assertcount( 2, $updated_coauthors );
 
+		// Removing an individual coauthor using `remove_coauthor_from_post()`
+		\CoAuthorsPlusRoles\remove_author_from_post( $post, 'guest-author-through-ui' );
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
+		$this->assertcount( 1, $updated_coauthors );
 	}
 
 }

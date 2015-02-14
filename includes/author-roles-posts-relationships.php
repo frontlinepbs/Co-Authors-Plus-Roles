@@ -8,10 +8,13 @@ namespace CoAuthorsPlusRoles;
 
 
 /**
- * Sets a guest author as a contributor on a post, with a specified role.
+ * Sets an author on a post, with a specified role.
  *
- * This should be called on all additional contributors, not on primary
- * authors/bylines, who will use the existing functionality from Co-Authors Plus.
+ * This can be used to edit an existing coauthor - for example, changing the role
+ * of an author already attached to a post - but it is not guaranteed to
+ * preserve order. If the sorted order of authors needs to be preserved, call
+ * `update_coauthors_on_post()` and pass the full list of coauthors to update,
+ * sorted.
  *
  * @param int|object $post_id Post to set author as "coauthor" on
  * @param object|string $author user_nicename of Author to add on post (or WP_User object)
@@ -87,7 +90,7 @@ function remove_all_coauthor_meta( $post_id ) {
 
 
 /**
- * Removes a guest author from a post.
+ * Removes an author from a post.
  *
  * @param int|object $post_id Post to set author as "coauthor" on
  * @param object|string $author WP_User object, or nicename/user_login/slug
@@ -104,21 +107,23 @@ function remove_author_from_post( $post_id, $author ) {
 
 	if ( is_string( $author ) ) {
 		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
+	} else if ( is_int( $author ) ) {
+		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
 	}
 
-	if ( is_int( $author ) ) {
-		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
+	if ( !is_object( $author ) ) {
+		return false;
 	}
 
 	// Remove byline term from post: Start by getting the author terms on the post.
 	$existing_authors = wp_get_object_terms( $post_id, $coauthors_plus->coauthor_taxonomy, array( 'fields' => 'slugs' ) );
 	$new_authors = array_diff( $existing_authors, array( 'cap-' . $author->user_nicename ) );
-	wp_set_object_terms( $post_id, $new_authors, $coauthors_plus->coauthor_taxonomy, true );
+	$coauthors_plus->add_coauthors( $post_id, $new_authors, false );
 
 	// Delete meta value setting contributor on post
 	foreach ( get_post_meta( $post_id ) as $key => $values ) {
-		if ( strpos( $key, 'cap-' ) === 0 && in_array( $author->display_name, $values ) ) {
-			delete_post_meta( $post_id, $key, $author->display_name );
+		if ( strpos( $key, 'cap-' ) === 0 && in_array( $author->user_nicename, $values ) ) {
+			delete_post_meta( $post_id, $key, $author->user_nicename );
 		}
 	}
 }
