@@ -1,0 +1,469 @@
+<style type="text/css">
+	.coauthor-sortable {
+		height: 68px;
+		width: auto;
+		max-width: 600px;
+	}
+
+		.coauthor-sortable .menu-item-handle {
+			width: 600px;
+			height: 48px;
+			padding-left: 10px;
+			display: -webkit-flex;
+			display: -ms-flexbox;
+			display: flex;
+			-webkit-align-items: center;
+				-ms-flex-align: center;
+					align-items: center;
+		}
+
+		.sortable-flex-section {
+			-webkit-flex: 1 0;
+				-ms-flex: 1 0;
+					flex: 1 0;
+			margin: auto;
+		}
+
+		.author-avatar {
+			width: 48px;
+			height: 48px;
+			margin-right: 10px;
+		}
+
+		.author-info {
+			height: 40px;
+			-webkit-flex-grow: 2;
+				-ms-flex-positive: 2;
+					flex-grow: 2;
+			line-height: 1.25;
+		}
+
+			.author-name, .author-email, .author-type {
+				display: block;
+			}
+
+			.author-name {
+				font-weight: 100;
+				color: #222;
+				font-size: 1.3em;
+			}
+
+			.author-email {
+				font-style: italic;
+				color: #666;
+			}
+
+		.author-role {
+			text-transform: uppercase;
+		}
+
+		.author-controls {
+			text-align: right;
+		}
+
+	#coauthor-select-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: #000;
+		opacity: 0.7;
+		z-index: 100100;
+	}
+
+	#coauthor-select-wrap {
+		background-color: #fff;
+		box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.3 );
+		width: 500px;
+		height: 500px;
+		overflow: hidden;
+		margin-left: -250px;
+		margin-top: -250px;
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		z-index: 100105;
+		transition: height 0.2s, margin-top 0.2s;
+	}
+
+	#coauthor-select-modal-title {
+		background: #fcfcfc;
+		border-bottom: 1px solid #dfdfdf;
+		height: 36px;
+		font-size: 18px;
+		font-weight: 600;
+		line-height: 36px;
+		padding: 0 36px 0 16px;
+		top: 0;
+		right: 0;
+		left: 0;
+	}
+
+	#coauthor-select-close {
+		color: #666;
+		padding: 0;
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 36px;
+		height: 36px;
+		text-align: center;
+		background: none;
+		border: none;
+		cursor: pointer;
+	}
+
+	#coauthor-select-close:before {
+		font: normal 20px/36px 'dashicons';
+		vertical-align: top;
+		speak: none;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		width: 36px;
+		height: 36px;
+		content: '\f158';
+	}
+
+	#coauthor-select-close:hover,
+	#coauthor-select-close:focus {
+		color: #2ea2cc;
+	}
+
+	#coauthor-select-close:focus {
+		outline: none;
+		box-shadow:
+			0 0 0 1px #5b9dd9,
+			0 0 2px 1px rgba(30, 140, 190, .8);
+	}
+
+
+	#coauthor-select .query-results {
+		border: 1px solid #ddd;
+		border-radius: 0;
+		box-shadow: inset 0 1px 2px rgba(0,0,0,0.07);
+		transition: .05s all ease-in-out;
+	}
+
+	#coauthor-select .query-results:focus {
+		border-color: #5b9dd9;
+		box-shadow: 0 0 2px rgba(30,140,190,0.8);
+	}
+
+	#coauthor-select {
+		padding: 0 16px 50px;
+		position: relative;
+		min-height: 370px;
+	}
+
+	#coauthor-select-wrap.search-panel-visible #coauthor-selector {
+		padding: 0 16px;
+		position: absolute;
+		top: 36px;
+		left: 0;
+		right: 0;
+		bottom: 44px;
+	}
+
+	#coauthor-select ol,
+	#coauthor-select ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	#coauthor-select-search-toggle:after {
+		display: inline-block;
+		font: normal 20px/1 'dashicons';
+		vertical-align: top;
+		speak: none;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		content: '\f140';
+	}
+
+	.search-panel-visible #coauthor-select-search-toggle:after {
+		content: '\f142';
+	}
+
+	#coauthor-select input[type="text"] {
+		box-sizing: border-box;
+	}
+
+	#coauthor-select #coauthor-options {
+		padding: 8px 0 12px;
+	}
+
+	#coauthor-select p.howto {
+		margin: 3px 0;
+	}
+
+	#coauthor-select p.howto a {
+		text-decoration: none;
+		color: inherit;
+	}
+
+	#coauthor-select-search-toggle {
+		cursor: pointer;
+	}
+
+	#coauthor-select label input[type="text"] {
+		margin-top: 5px;
+		width: 70%;
+	}
+
+	#coauthor-select #coauthor-options label span,
+	#coauthor-select #search-panel label span.search-label {
+		display: inline-block;
+		width: 80px;
+		text-align: right;
+		padding-right: 5px;
+		max-width: 24%;
+	}
+
+	#coauthor-select .coauthor-search-field {
+		float: left;
+		width: 250px;
+		max-width: 70%;
+	}
+
+	#coauthor-select .coauthor-search-wrapper {
+		margin: 5px 0 9px;
+		display: block;
+		overflow: hidden;
+	}
+
+	#coauthor-select .coauthor-search-wrapper span {
+		float: left;
+		margin-top: 4px;
+	}
+
+	#coauthor-select .coauthor-search-wrapper .spinner {
+		display: none;
+		vertical-align: text-bottom;
+	}
+
+	#coauthor-select .coauthor-target {
+		padding: 3px 0 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#coauthor-select .coauthor-target label {
+		max-width: 70%;
+	}
+
+	#coauthor-select .query-results {
+		border: 1px #dfdfdf solid;
+		margin: 0;
+		background: #fff;
+		overflow: auto;
+		position: absolute;
+		left: 16px;
+		right: 16px;
+		bottom: 16px;
+		top: 166px;
+	}
+
+	#coauthor-select li {
+		clear: both;
+		margin-bottom: 0;
+		border-bottom: 1px solid #f1f1f1;
+		color: #333;
+		padding: 4px 6px 4px 10px;
+		cursor: pointer;
+		position: relative;
+	}
+
+	#coauthor-select .query-notice {
+		padding: 0;
+		border-bottom: 1px solid #dfdfdf;
+		background-color: #f7fcfe;
+		color: #000;
+	}
+
+	#coauthor-select .query-notice .query-notice-default,
+	#coauthor-select .query-notice .query-notice-hint {
+		display: block;
+		padding: 6px;
+		border-left: 4px solid #2ea2cc;
+	}
+
+	#coauthor-select .unselectable.no-matches-found {
+		padding: 0;
+		border-bottom: 1px solid #dfdfdf;
+		background-color: #fef7f1;
+	}
+
+	#coauthor-select .no-matches-found .item-title {
+		display: block;
+		padding: 6px;
+		border-left: 4px solid #d54e21;
+	}
+
+	#coauthor-select .query-results em {
+		font-style: normal;
+	}
+
+	#coauthor-select li:hover {
+		background: #eaf2fa;
+		color: #151515;
+	}
+
+	#coauthor-select li.unselectable {
+		border-bottom: 1px solid #dfdfdf;
+	}
+
+	#coauthor-select li.unselectable:hover {
+		background: #fff;
+		cursor: auto;
+		color: #333;
+	}
+
+	#coauthor-select li.selected {
+		background: #ddd;
+		color: #333;
+	}
+
+	#coauthor-select li.selected .item-title {
+		font-weight: bold;
+	}
+
+	#coauthor-select li:last-child {
+		border: none;
+	}
+
+	#coauthor-select .item-title {
+		display: inline-block;
+		width: 80%;
+		width: calc(100% - 68px);
+	}
+
+	#coauthor-select .item-info {
+		text-transform: uppercase;
+		color: #666;
+		font-size: 11px;
+		position: absolute;
+		right: 5px;
+		top: 5px;
+	}
+
+	#coauthor-select #search-results,
+	#coauthor-select #search-panel {
+		display: none;
+	}
+
+	#coauthor-select-wrap #search-panel {
+		display: block;
+	}
+
+	#coauthor-select .river-waiting {
+		display: none;
+		padding: 10px 0;
+	}
+
+	#coauthor-select .river-waiting .spinner {
+		margin: 0 auto;
+		display: block;
+		float: none;
+	}
+
+	#coauthor-select-contributor .submitbox {
+		padding: 8px 16px;
+		background: #fcfcfc;
+		border-top: 1px solid #dfdfdf;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+
+	#coauthor-select-cancel {
+		line-height: 25px;
+		float: left;
+	}
+
+	#coauthor-select-update {
+		line-height: 23px;
+		float: right;
+	}
+
+	#coauthor-select-submit {
+		float: right;
+		margin-bottom: 0;
+	}
+
+	@media screen and ( max-width: 782px ) {
+		#coauthor-select-wrap {
+			height: 280px;
+			margin-top: -140px;
+		}
+
+		#coauthor-select-wrap.search-panel-visible .query-results {
+			top: 235px;
+		}
+
+		#coauthor-selector {
+			padding: 0 16px 60px;
+		}
+
+		#coauthor-select-wrap.search-panel-visible #coauthor-selector {
+			bottom: 52px;
+		}
+
+		#coauthor-select-cancel {
+			line-height: 32px;
+		}
+	}
+
+	@media screen and ( max-width: 520px ) {
+		#coauthor-select-wrap {
+			width: auto;
+			margin-left: 0;
+			left: 10px;
+			right: 10px;
+			max-width: 500px;
+		}
+	}
+
+	@media screen and ( max-height: 520px ) {
+		#coauthor-select-wrap {
+			transition: none;
+		}
+
+		#coauthor-select-wrap.search-panel-visible {
+			height: auto;
+			margin-top: 0;
+			top: 10px;
+			bottom: 10px;
+		}
+
+		.search-panel-visible #coauthor-selector {
+			overflow: auto;
+		}
+
+		.search-panel-visible #search-panel .query-results {
+			position: static;
+		}
+	}
+
+	@media screen and ( max-height: 290px ) {
+		#coauthor-select-wrap {
+			height: auto;
+			margin-top: 0;
+			top: 10px;
+			bottom: 10px;
+		}
+
+		#coauthor-selector {
+			overflow: auto;
+			height: calc(100% - 92px);
+			padding-bottom: 2px;
+		}
+
+		#search-panel .query-results {
+			position: static;
+		}
+	}
+</style>

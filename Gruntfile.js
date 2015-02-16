@@ -38,7 +38,10 @@ module.exports = function(grunt) {
             'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore.js',
             'https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone.js',
           ],
-          helpers: 'spec/*Helper.js',
+          helpers: [
+            'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
+            'tests/jasmine/test-helpers.js',
+          ],
         }
       }
     },

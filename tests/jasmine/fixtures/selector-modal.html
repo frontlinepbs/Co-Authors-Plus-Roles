@@ -1,0 +1,42 @@
+<div style="display:none;" class="wp-core-ui" id="coauthor-select-wrap">
+	<form tabindex="-1" id="coauthor-select-contributor">
+		<input type="hidden" value="53" id="coauthor-post-id" />
+		<div id="coauthor-select-modal-title">
+			<span id="coauthor-select-header">Default text</span>
+			<button id="coauthor-select-close" type="button">
+				<span class="screen-reader-text">Close</span>
+			</button>
+		</div>
+		<div id="coauthor-select">
+			<div id="coauthor-options">
+				<p class="howto">Choose the role for this contributor:</p>
+				<select name="coauthor-select-role" id="coauthor-select-role">
+					<option value="">Choose a role</option>
+					<option value="author">Author</option>
+					<option value="contributor">Contributing Author</option>
+					<option value="photographer">Photographer</option>
+				</select>
+				<input type="hidden" value="" id="coauthor-author-id" />
+			</div>
+			<div id="coauthor-search-panel">
+				<div class="coauthor-search-wrapper">
+					<label>
+						<p class="howto">Search by name or email address:</p>
+						<input type="search" autocomplete="off" class="coauthor-search-field" id="coauthor-search-field" />
+						<span class="spinner"></span>
+					</label>
+				</div>
+				<div tabindex="0" class="query-results" id="search-results" style="display: none;"></div>
+				<div tabindex="0" class="query-results" id="most-recent-results"></div>
+			</div>
+		</div>
+		<div class="submitbox">
+			<div id="coauthor-select-cancel">
+				<a href="#" class="submitdelete deletion">Cancel</a>
+			</div>
+			<div id="coauthor-select-update">
+				<input type="submit" name="coauthor-select-submit" id="coauthor-select-submit" class="button button-primary" value="Add author to post" />
+			</div>
+		</div>
+	</form>
+</div>

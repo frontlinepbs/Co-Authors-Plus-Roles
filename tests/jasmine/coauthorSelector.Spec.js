@@ -1,5 +1,6 @@
 describe("The coauthor selector modal", function() {
 
+  /*
   it("should show all authors not already connected to the current post on opening", function() {
   });
 
@@ -17,6 +18,7 @@ describe("The coauthor selector modal", function() {
 
   it("should update sortable item on saving changes to existing coauthor", function() {
   });
+  */
 
 });
 
