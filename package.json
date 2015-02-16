@@ -21,6 +21,7 @@
     "grunt-wp-readme-to-markdown": "~0.8.0",
     "grunt-phpunit": "~0.3.6",
     "grunt-contrib-watch": "~0.6.1",
-    "grunt-autoprefixer": "~2.2.0"
+    "grunt-autoprefixer": "~2.2.0",
+    "grunt-contrib-jasmine": "~0.8.2"
   }
 }
