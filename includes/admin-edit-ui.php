@@ -239,10 +239,10 @@ function enqueue_scripts() {
 			'update' => __( 'Update', 'co-authors-plus-roles' ),
 			'save' => __( 'Add Author', 'co-authors-plus-roles' ),
 			'noMatchesFound' => __( 'No results found.', 'co-authors-plus-roles' ),
-			'addNewAuthorHeader' => __( 'Add new author to post', 'coauthors-plus-roles' ),
-			'editExistingAuthorHeader' => __( 'Edit author on post', 'coauthors-plus-roles' ),
-			'addNewAuthorButton' => __( 'Add author to post', 'coauthors-plus-roles' ),
-			'editExistingAuthorButton' => __( 'Save changes to author', 'coauthors-plus-roles' )
+			'addNewAuthorHeader' => __( 'Add new author to post', 'co-authors-plus-roles' ),
+			'editExistingAuthorHeader' => __( 'Edit author on post', 'co-authors-plus-roles' ),
+			'addNewAuthorButton' => __( 'Add author to post', 'co-authors-plus-roles' ),
+			'editExistingAuthorButton' => __( 'Save changes to author', 'co-authors-plus-roles' )
 		)
 	);
 }
@@ -270,9 +270,9 @@ function coauthor_select_dialog() {
 			</div>
 			<div id="coauthor-select">
 				<div id="coauthor-options">
-					<p class="howto"><?php esc_html_e( 'Choose the role for this contributor:', 'coauthors-plus-roles' ); ?></p>
+					<p class="howto"><?php esc_html_e( 'Choose the role for this contributor:', 'co-authors-plus-roles' ); ?></p>
 					<select id="coauthor-select-role" name="coauthor-select-role">
-						<option value=""><?php esc_html_e( 'Choose a role', 'coauthors-plus-roles' ); ?></option>
+						<option value=""><?php esc_html_e( 'Choose a role', 'co-authors-plus-roles' ); ?></option>
 					<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
 						foreach ( $roles_available as $role ) {
 							echo '<option value="' . esc_attr( $role->slug ) . '">' . esc_html( $role->name ) . '</option>';
@@ -284,7 +284,7 @@ function coauthor_select_dialog() {
 				<div id="coauthor-search-panel">
 					<div class="coauthor-search-wrapper">
 						<label>
-							<p class="howto"><?php esc_html_e( 'Search by name or email address:', 'coauthors-plus-roles' ); ?></p>
+							<p class="howto"><?php esc_html_e( 'Search by name or email address:', 'co-authors-plus-roles' ); ?></p>
 							<input type="search" id="coauthor-search-field" class="coauthor-search-field" autocomplete="off" />
 							<span class="spinner"></span>
 						</label>
