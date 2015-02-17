@@ -1,5 +1,20 @@
 describe("The coauthor selector modal", function() {
 
+  beforeEach(function() {
+
+    jasmine.getStyleFixtures().fixturesPath = 'tests/jasmine/fixtures';
+    loadStyleFixtures('admin-ui-style.css');
+
+    jasmine.getFixtures().fixturesPath = 'tests/jasmine/fixtures';
+    loadFixtures('sortable-list.html', 'selector-modal.html');
+
+    coauthorsSortable.list = $('#coauthors-select-list');
+    coauthorsSortable.toggle = $('#coauthor-add-toggle');
+    coauthorsSortable.init();
+    coauthorsSelector.init();
+
+  });
+
   /*
   it("should show all authors not already connected to the current post on opening", function() {
   });

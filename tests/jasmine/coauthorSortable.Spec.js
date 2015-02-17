@@ -1,17 +1,3 @@
-var ajaxurl, coauthorsL10n;
-ajaxurl = 'tests/jasmine/fixtures/admin-ajax-action';
-coauthorsL10n = {
-  'title': 'Insert/edit author',
-  'update': 'Update',
-  'save': 'Add Author',
-  'noMatchesFound': 'No results found.',
-  'addNewAuthorHeader': 'Add new author to post',
-  'editExistingAuthorHeader': 'Edit author on post',
-  'addNewAuthorButton': 'Add author to post',
-  'editExistingAuthorButton': 'Save changes to author',
-};
-
-
 describe("coauthor sortable", function() {
 
   beforeEach(function() {
