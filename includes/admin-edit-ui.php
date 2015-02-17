@@ -120,7 +120,11 @@ function coauthors_meta_box( $post ) {
 			return $author;
 		}, $coauthors );
 
-	echo '<p>' . __( 'Click on an author to change them. Drag to change their order. Click on <b>Remove</b> to remove them.', 'co-authors-plus-roles' ) . '</p>';
+	echo '<p>' .
+		sprintf(
+			esc_html__( 'Click on an author to change them. Drag to change their order. Click on %s to remove them.', 'co-authors-plus-roles' ),
+			'<b>' . esc_html__( 'Remove', 'co-authors-plus-roles' ) . '</b>'
+		) . '</p>';
 
 	wp_nonce_field( 'coauthors_save', 'edit_coauthorsplus_roles_nonce' );
 
