@@ -121,7 +121,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 					}
 
 					$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
-					$post_author->author_role = '';
+					$post_author->author_role = __( 'BYLINE', 'co-authors-plus-roles' );
 
 					// In case the user has been deleted while plugin was deactivated
 					if ( ! empty( $post_author ) ) {
