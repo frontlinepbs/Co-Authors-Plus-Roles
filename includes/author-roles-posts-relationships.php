@@ -56,14 +56,17 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 	}
 
 	if ( ! is_object( $author_role ) ) {
-		$author_role = get_author_role( $author_role );
+		$author_role = get_author_role( sanitize_text_field( $author_role ) );
 	}
 
 	if ( ! $author_role ) {
 		return false;
 	}
 
-	add_post_meta( $post_id, 'cap-' . $author_role->slug, $author->user_nicename );
+	add_post_meta( $post_id,
+		sanitize_key( 'cap-' . $author_role->slug ),
+		sanitize_user( $author->user_nicename )
+	);
 }
 
 
@@ -108,9 +111,9 @@ function remove_author_from_post( $post_id, $author ) {
 	$post_id = intval( $post_id );
 
 	if ( is_string( $author ) ) {
-		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
+		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', sanitize_text_field( $author ) );
 	} else if ( is_int( $author ) ) {
-		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
+		$author = $coauthors_plus->get_coauthor_by( 'id', sanitize_text_field( $author ) );
 	}
 
 	if ( !is_object( $author ) ) {

@@ -75,9 +75,9 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 		if ( $args['author_role'] === 'any' || ! $args['author_role'] ) {
 			$author_roles = wp_list_pluck( get_author_roles(), 'slug' );
 		} else if ( is_string( $args['author_role'] ) ) {
-			$author_roles = array( $args['author_role'] );
+			$author_roles = array( sanitize_text_field( $args['author_role'] ) );
 		} else {
-			$author_roles = $args['author_role'];
+			$author_roles = array_map( 'sanitize_text_field', $args['author_role'] );
 		}
 
 		// Get the terms as stored in post meta: look up all the author roles passed in by function
@@ -121,7 +121,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 					}
 
 					$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
-					$post_author->author_role = 'byline';
+					$post_author->author_role = '';
 
 					// In case the user has been deleted while plugin was deactivated
 					if ( ! empty( $post_author ) ) {

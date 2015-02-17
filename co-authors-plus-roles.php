@@ -62,8 +62,8 @@ class CoAuthorsPlusRoles {
 
 		if ( $notices && is_array( $notices ) ) {
 			echo '
-				<div id="message" class="' . $notices['class'] . '">
-					<p>' . $notices['message'] . '</p>
+				<div id="message" class="' . esc_attr( $notices['class'] ) . '">
+					<p>' . esc_html( $notices['message'] ) . '</p>
 				</div>';
 			delete_option( 'co_authors_plus_roles__notices' );
 		}
