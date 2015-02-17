@@ -56,17 +56,14 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 	}
 
 	if ( ! is_object( $author_role ) ) {
-		$author_role = get_author_role( sanitize_text_field( $author_role ) );
+		$author_role = get_author_role( $author_role );
 	}
 
 	if ( ! $author_role ) {
 		return false;
 	}
 
-	add_post_meta( $post_id,
-		sanitize_key( 'cap-' . $author_role->slug ),
-		sanitize_user( $author->user_nicename )
-	);
+	add_post_meta( $post_id, 'cap-' . $author_role->slug, $author->user_nicename );
 }
 
 

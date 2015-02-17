@@ -180,13 +180,19 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 					<span class="author-name"><?php echo esc_html( $coauthor->display_name ); ?></span>
 					<span class="author-email"><?php echo esc_html( $coauthor->user_email ); ?></span>
 				</span>
-				<?php $author_role = ( ! empty( $coauthor->author_role ) ) ?
-										$coauthor->author_role : esc_html__( 'BYLINE', 'co-authors-plus-roles' ); ?>
+				<?php
+					/*
+					 * The special case where `author_role` is empty should be handled separately.
+					 * An empty role means that its treated as a "byline". We give it a name here for display purposes,
+					 * but this name is never saved.
+					 */
+					$author_role = ( ! empty( $coauthor->author_role ) ) ?
+								$coauthor->author_role : esc_html__( 'byline', 'co-authors-plus-roles' ); ?>
 				<span class="author-role sortable-flex-section">
 					<a class="edit-coauthor"
 						data-author-name="<?php echo esc_attr( $coauthor->user_nicename ); ?>"
 						data-role="<?php echo esc_attr( $author_role ); ?>"
-						data-author-id="<?php echo esc_attr( $coauthor->user_nicename ); ?>"
+						data-author-nicename="<?php echo esc_attr( $coauthor->user_nicename ); ?>"
 						><?php echo esc_html( $author_role ); ?></a>
 				</span>
 				<span class="author-controls sortable-flex-section">
@@ -212,7 +218,7 @@ function ajax_template_coauthor_sortable() {
 	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_template_nonce' );
 	global $coauthors_plus;
 
-	$coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', sanitize_text_field( $_REQUEST['authorId'] ) );
+	$coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', sanitize_text_field( $_REQUEST['authorNicename'] ) );
 	$role = get_author_role( sanitize_text_field( $_REQUEST['authorRole'] ) );
 
 	if ( ! $coauthor || ! $role ) {
@@ -283,7 +289,7 @@ function coauthor_select_dialog() {
 						}
 					?>
 					</select>
-					<input type="hidden" id="coauthor-author-id" value="" />
+					<input type="hidden" id="coauthor-author-nicename" value="" />
 				</div>
 				<div id="coauthor-search-panel">
 					<div class="coauthor-search-wrapper">

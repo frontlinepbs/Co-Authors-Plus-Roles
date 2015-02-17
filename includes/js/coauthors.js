@@ -18,13 +18,13 @@ var coauthorsSelector, coauthorsSortable;
 		openSelectorToEdit: function(evt) {
 			var link = $(evt.currentTarget),
 				thisLi = link.closest('li.coauthor-sortable'),
-				thisAuthor = link.data( 'author-id' );
+				thisAuthor = link.data( 'author-nicename' );
 
 			coauthorsSelector.open( thisLi );
 			currentlyEditing = thisLi;
 
 			inputs.role.val( link.data('role') );
-			inputs.authorId.val( link.data('author-id') );
+			inputs.authorNicename.val( link.data('author-nicename') );
 			inputs.search.val( link.data('author-name') );
 
 			inputs.search.trigger('keyup');
@@ -62,7 +62,7 @@ var coauthorsSelector, coauthorsSortable;
 
 			// Inputs
 			inputs.role = $( '#coauthor-select-role' );
-			inputs.authorId = $( '#coauthor-author-id' );
+			inputs.authorNicename = $( '#coauthor-author-nicename' );
 			inputs.postId = $( '#coauthor-post-id' );
 			inputs.nonce = $( '#_coauthor_select_nonce' );
 
@@ -142,7 +142,7 @@ var coauthorsSelector, coauthorsSortable;
 
 			// Reset each of the inputs
 			inputs.role.val();
-			inputs.authorId.val();
+			inputs.authorNicename.val();
 			inputs.search.val();
 
 			// Refresh rivers (clear links, check visibility)
@@ -181,21 +181,21 @@ var coauthorsSelector, coauthorsSortable;
 		getAttrs: function() {
 			return {
 				role: inputs.role.val(),
-				authorId: inputs.authorId.val()
+				authorNicename: inputs.authorNicename.val()
 			};
 		},
 
 		update: function() {
 			// validate that an author ID and role are selected
 			// XXX this is p awful. work out a better UX for this form
-			if ( ! inputs.authorId.val() || ! inputs.role.val() ) {
+			if ( ! inputs.authorNicename.val() || ! inputs.role.val() ) {
 				alert( "something's not filled out!" );
 				return false; // TODO: helpful error message
 			}
 
 			var query = {
 					action: 'coauthor-sortable-template',
-					authorId: inputs.authorId.val(),
+					authorNicename: inputs.authorNicename.val(),
 					authorRole: inputs.role.val(),
 					'_ajax_coauthor_template_nonce': inputs.nonce.val()
 				};
@@ -214,7 +214,7 @@ var coauthorsSelector, coauthorsSortable;
 		},
 
 		updateFields: function( e, li ) {
-			inputs.authorId.val( li.children( '.item-id' ).val() );
+			inputs.authorNicename.val( li.children( '.item-nicename' ).val() );
 		},
 
 		searchAuthors: function() {
@@ -449,7 +449,7 @@ var coauthorsSelector, coauthorsSortable;
 					classes = alt ? 'alternate' : '';
 					classes += this.post_title ? '' : ' no-title';
 					list += classes ? '<li class="' + classes + '">' : '<li>';
-					list += '<input type="hidden" class="item-id" value="' + this.user_nicename + '" />';
+					list += '<input type="hidden" class="item-nicename" value="' + this.user_nicename + '" />';
 					list += '<span class="item-title">';
 					list += this.display_name ? this.display_name : coauthorsL10n.noTitle;
 					list += '</span><span class="item-info">' + this.type.replace('-',' ') + '</span></li>';

@@ -75,9 +75,9 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 		if ( $args['author_role'] === 'any' || ! $args['author_role'] ) {
 			$author_roles = wp_list_pluck( get_author_roles(), 'slug' );
 		} else if ( is_string( $args['author_role'] ) ) {
-			$author_roles = array( sanitize_text_field( $args['author_role'] ) );
+			$author_roles = array( $args['author_role'] );
 		} else {
-			$author_roles = array_map( 'sanitize_text_field', $args['author_role'] );
+			$author_roles = $args['author_role'];
 		}
 
 		// Get the terms as stored in post meta: look up all the author roles passed in by function
@@ -121,7 +121,13 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 					}
 
 					$post_author = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
-					$post_author->author_role = __( 'BYLINE', 'co-authors-plus-roles' );
+
+					/*
+					 * The special case where `author_role` is empty should be handled separately.
+					 * An empty role means that its treated as a "byline". We give it a name here for display purposes,
+					 * but this name is never saved.
+					 */
+					$post_author->author_role = esc_html__( 'byline', 'co-authors-plus-roles' );
 
 					// In case the user has been deleted while plugin was deactivated
 					if ( ! empty( $post_author ) ) {
