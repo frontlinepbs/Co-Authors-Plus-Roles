@@ -120,7 +120,11 @@ function coauthors_meta_box( $post ) {
 			return $author;
 		}, $coauthors );
 
-	echo '<p>' . __( 'Click on an author to change them. Drag to change their order. Click on <b>Remove</b> to remove them.', 'co-authors-plus-roles' ) . '</p>';
+	echo '<p>' .
+		sprintf(
+			esc_html__( 'Click on an author to change them. Drag to change their order. Click on %s to remove them.', 'co-authors-plus-roles' ),
+			'<b>' . esc_html__( 'Remove', 'co-authors-plus-roles' ) . '</b>'
+		) . '</p>';
 
 	wp_nonce_field( 'coauthors_save', 'edit_coauthorsplus_roles_nonce' );
 
@@ -135,7 +139,7 @@ function coauthors_meta_box( $post ) {
 	echo '</ul>';
 
 	echo '<h4><a class="hide-if-no-js" href="#coauthor-add" id="coauthor-add-toggle">'
-		. __( '+ Add New Author', 'co-authors-plus-roles' ) . '</a></h4>';
+		. esc_html__( '+ Add New Author', 'co-authors-plus-roles' ) . '</a></h4>';
 
 }
 
@@ -159,34 +163,44 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 		$coauthor->type = 'WP USER';
 	}
 
+	if ( ! isset( $coauthor->author_role ) ) {
+		$coauthor->author_role = '';
+	}
+
 	// The format in which these values are posted.
 	$coauthor_input_value = "{$coauthor->user_nicename}|||{$coauthor->author_role}";
 	?>
-	<li id="menu-item-<?php echo $coauthor->user_nicename; ?>" class="menu-item coauthor-sortable">
+	<li id="menu-item-<?php echo esc_attr( $coauthor->user_nicename ); ?>" class="menu-item coauthor-sortable">
 		<dl class="menu-item-bar">
 			<dt class="menu-item-handle">
 				<span class="author-avatar">
 					<?php echo get_avatar( $coauthor->user_email, 48 ); ?>
 				</span>
 				<span class="author-info sortable-flex-section">
-					<span class="author-name"><?php echo $coauthor->display_name; ?></span>
-					<span class="author-email"><?php echo $coauthor->user_email; ?></span>
+					<span class="author-name"><?php echo esc_html( $coauthor->display_name ); ?></span>
+					<span class="author-email"><?php echo esc_html( $coauthor->user_email ); ?></span>
 				</span>
-				<?php $author_role = ( isset( $coauthor->author_role ) ) ?
-										$coauthor->author_role : 'BYLINE'; ?>
+				<?php
+					/*
+					 * The special case where `author_role` is empty should be handled separately.
+					 * An empty role means that its treated as a "byline". We give it a name here for display purposes,
+					 * but this name is never saved.
+					 */
+					$author_role = ( ! empty( $coauthor->author_role ) ) ?
+								$coauthor->author_role : esc_html__( 'byline', 'co-authors-plus-roles' ); ?>
 				<span class="author-role sortable-flex-section">
 					<a class="edit-coauthor"
-						data-author-name="<?php echo $coauthor->display_name; ?>"
-						data-role="<?php echo $author_role; ?>"
-						data-author-id="<?php echo $coauthor->user_nicename; ?>"
-						><?php echo $author_role; ?></a>
+						data-author-name="<?php echo esc_attr( $coauthor->user_nicename ); ?>"
+						data-role="<?php echo esc_attr( $author_role ); ?>"
+						data-author-nicename="<?php echo esc_attr( $coauthor->user_nicename ); ?>"
+						><?php echo esc_html( $author_role ); ?></a>
 				</span>
 				<span class="author-controls sortable-flex-section">
 					<span class="publishing-actions">
-						<a class="remove-coauthor submitdelete deletion"><?php _e( 'Remove' ); ?></a>
+						<a class="remove-coauthor submitdelete deletion"><?php esc_attr_e( 'Remove', 'co-authors-plus-roles' ); ?></a>
 					</span>
 				</span>
-				<input type="hidden" name="coauthors[]" value="<?php echo $coauthor_input_value; ?>" />
+				<input type="hidden" name="coauthors[]" value="<?php echo esc_attr( $coauthor_input_value ); ?>" />
 			</dt>
 		</dl>
 	</li>
@@ -204,8 +218,8 @@ function ajax_template_coauthor_sortable() {
 	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_template_nonce' );
 	global $coauthors_plus;
 
-	$coauthor = $coauthors_plus->get_coauthor_by( 'id', intval( $_REQUEST['authorId'] ) );
-	$role = get_author_role( $_REQUEST['authorRole'] );
+	$coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', sanitize_text_field( $_REQUEST['authorNicename'] ) );
+	$role = get_author_role( sanitize_text_field( $_REQUEST['authorRole'] ) );
 
 	if ( ! $coauthor || ! $role ) {
 		wp_die( 'Missing required information.' );
@@ -235,8 +249,10 @@ function enqueue_scripts() {
 			'update' => __( 'Update', 'co-authors-plus-roles' ),
 			'save' => __( 'Add Author', 'co-authors-plus-roles' ),
 			'noMatchesFound' => __( 'No results found.', 'co-authors-plus-roles' ),
-			'addNewAuthorHeader' => __( 'Add new author to post', 'coauthors-plus-roles' ),
-			'editExistingAuthorHeader' => __( 'Edit author on post', 'coauthors-plus-roles' )
+			'addNewAuthorHeader' => __( 'Add new author to post', 'co-authors-plus-roles' ),
+			'editExistingAuthorHeader' => __( 'Edit author on post', 'co-authors-plus-roles' ),
+			'addNewAuthorButton' => __( 'Add author to post', 'co-authors-plus-roles' ),
+			'editExistingAuthorButton' => __( 'Save changes to author', 'co-authors-plus-roles' )
 		)
 	);
 }
@@ -259,26 +275,26 @@ function coauthor_select_dialog() {
 			<div id="coauthor-select-modal-title">
 				<span id="coauthor-select-header"></span>
 				<button type="button" id="coauthor-select-close">
-					<span class="screen-reader-text"><?php _e( 'Close' ); ?></span>
+					<span class="screen-reader-text"><?php esc_html_e( 'Close', 'co-authors-plus-roles' ); ?></span>
 				</button>
 			</div>
 			<div id="coauthor-select">
 				<div id="coauthor-options">
-					<p class="howto"><?php _e( 'Choose the role for this contributor:', 'coauthors-plus-roles' ); ?></p>
+					<p class="howto"><?php esc_html_e( 'Choose the role for this contributor:', 'co-authors-plus-roles' ); ?></p>
 					<select id="coauthor-select-role" name="coauthor-select-role">
-						<option value=""><?php _e( 'Choose a role', 'coauthors-plus-roles' ); ?></option>
+						<option value=""><?php esc_html_e( 'Choose a role', 'co-authors-plus-roles' ); ?></option>
 					<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
 						foreach ( $roles_available as $role ) {
-							echo '<option value="' . $role->slug . '">' . $role->name . '</option>';
+							echo '<option value="' . esc_attr( $role->slug ) . '">' . esc_html( $role->name ) . '</option>';
 						}
 					?>
 					</select>
-					<input type="hidden" id="coauthor-author-id" value="" />
+					<input type="hidden" id="coauthor-author-nicename" value="" />
 				</div>
 				<div id="coauthor-search-panel">
 					<div class="coauthor-search-wrapper">
 						<label>
-							<p class="howto"><?php _e( 'Search by name or email address:', 'coauthors-plus-roles' ); ?></p>
+							<p class="howto"><?php esc_html_e( 'Search by name or email address:', 'co-authors-plus-roles' ); ?></p>
 							<input type="search" id="coauthor-search-field" class="coauthor-search-field" autocomplete="off" />
 							<span class="spinner"></span>
 						</label>
@@ -291,8 +307,8 @@ function coauthor_select_dialog() {
 					</div>
 					<div id="most-recent-results" class="query-results" tabindex="0">
 						<div class="query-notice" id="query-notice-message">
-							<em class="query-notice-default"><?php _e( 'No search term specified. Showing recent items.' ); ?></em>
-							<em class="query-notice-hint screen-reader-text"><?php _e( 'Search or use up and down arrow keys to select an item.' ); ?></em>
+							<em class="query-notice-default"><?php esc_html_e( 'No search term specified. Showing recent items.', 'co-authors-plus-roles' ); ?></em>
+							<em class="query-notice-hint screen-reader-text"><?php esc_html_e( 'Search or use up and down arrow keys to select an item.', 'co-authors-plus-roles' ); ?></em>
 						</div>
 						<ul></ul>
 						<div class="river-waiting">
@@ -303,10 +319,10 @@ function coauthor_select_dialog() {
 			</div>
 			<div class="submitbox">
 				<div id="coauthor-select-cancel">
-					<a class="submitdelete deletion" href="#"><?php _e( 'Cancel' ); ?></a>
+					<a class="submitdelete deletion" href="#"><?php esc_html_e( 'Cancel', 'co-authors-plus-roles' ); ?></a>
 				</div>
 				<div id="coauthor-select-update">
-					<input type="submit" value="<?php esc_attr_e( 'Add coauthor to post' ); ?>" class="button button-primary" id="coauthor-select-submit" name="coauthor-select-submit">
+					<input type="submit" value="<?php esc_attr_e( 'Add coauthor to post', 'co-authors-plus-roles' ); ?>" class="button button-primary" id="coauthor-select-submit" name="coauthor-select-submit">
 				</div>
 			</div>
 		</form>
@@ -371,7 +387,7 @@ function ajax_search_coauthors() {
 	$coauthors = search_coauthors( $search, $post_ID );
 
 	if ( $coauthors ) {
-		wp_send_json( array_values( $coauthors ) );
+		wp_send_json_success( array_values( $coauthors ) );
 	} else {
 		wp_send_json_error( 'No authors were found.' );
 	}
@@ -421,7 +437,8 @@ function get_top_authors() {
  * Update the co-authors on a post on saving.
  *
  * @param int $post_ID
- * @param array $new_coauthors Array of strings in the format posted by the sortables in the meta box.
+ * @param array $new_coauthors Array of strings in the format "{nicename}|||{role}"
+ *                              as posted by the sortables in the meta box.
  */
 function update_coauthors_on_post( $post_id, $new_coauthors ) {
 	global $coauthors_plus;
@@ -432,20 +449,62 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 	}
 
 	if ( $new_coauthors && is_array( $new_coauthors ) ) {
-		// XXX This should diff against the already added coauthors, or alternately just wipe them every time.
-		// Right now it just appends, so you can never delete an author from a post.
-		foreach ( $new_coauthors as $coauthor ) {
 
-			// Parse and sanitize terms. `set_author_on_post` does
-			// some type checking of its parameters, so we coerce the
-			// posted string into the expected types here.
-			list( $author, $role ) = explode( '|||', $coauthor );
-			$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
-			set_author_on_post( $post_id, $author, $role );
+		// Convert the new coauthors array from the string format used on inputs from the post edit
+		// screen into proper objects which can be compared with existing coauthors.
+		$new_coauthors = array_filter(
+			array_map(
+				function( $coauthor_string ) {
+					global $coauthors_plus;
 
+					list( $author_name, $role ) = explode( '|||', $coauthor_string );
+					$new_coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', sanitize_text_field( $author_name ) );
+					if ( $new_coauthor ) {
+						$new_coauthor->author_role = sanitize_text_field( $role );
+						return $new_coauthor;
+					}
+				}, $new_coauthors
+			)
+		);
+
+		// Diff new data against the already added coauthors. If they aren't identical, wipe the old postmeta and re-add.
+		$existing_coauthors = get_coauthors( $post_id, array( 'author_role' => 'any' ) );
+
+		$difference = false;
+		for ( $i=0; $i<=max( count( $new_coauthors ), count( $existing_coauthors ) ); $i++ ) {
+			if ( ! isset( $new_coauthors[$i] ) || !isset( $existing_coauthors[ $i ] ) ) {
+				$difference = true; break;
+			}
+			if ( $new_coauthors[ $i ]->user_nicename !== $existing_coauthors[ $i ]->user_nicename ) {
+				$difference = true; break;
+			}
+			if ( $new_coauthors[ $i ]->author_role !== $existing_coauthors[ $i ]->author_role ) {
+				$difference = true; break;
+			}
 		}
+
+		if ( $difference ) {
+			remove_all_coauthor_meta( $post_id );
+			foreach ( $new_coauthors as $new_coauthor ) {
+				set_author_on_post( $post_id, $new_coauthor, $new_coauthor->author_role );
+			}
+		}
+
+		// Use $coauthors_plus->set_coauthors to update byline roles. This clears the existing terms and
+		// re-adds them in the correct order.
+		$new_byline_coauthors = array_filter(
+			$new_coauthors,
+			function( $author ) {
+				return ( empty( $author->author_role ) || in_array( $author->author_role, byline_roles() ) );
+			}
+		);
+
+		$byline_coauthors_slugs = wp_list_pluck( $new_byline_coauthors, 'user_nicename' );
+
+		$coauthors_plus->add_coauthors( $post_id, $byline_coauthors_slugs, false );
 	}
 }
+
 
 /**
  * Update the co-authors on a post on saving.
@@ -470,7 +529,7 @@ function action_update_coauthors_on_post( $post_id, $post ) {
 		// if current_user_can_set_authors and nonce valid
 		check_admin_referer( 'coauthors_save', 'edit_coauthorsplus_roles_nonce' );
 
-		$coauthors = (array) $_POST['coauthors'];
+		$coauthors = array_map( 'sanitize_text_field', (array) $_POST['coauthors'] );
 
 		update_coauthors_on_post( $post_id, $coauthors );
 

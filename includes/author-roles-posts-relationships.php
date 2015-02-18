@@ -8,10 +8,13 @@ namespace CoAuthorsPlusRoles;
 
 
 /**
- * Sets a guest author as a contributor on a post, with a specified role.
+ * Sets an author on a post, with a specified role.
  *
- * This should be called on all additional contributors, not on primary
- * authors/bylines, who will use the existing functionality from Co-Authors Plus.
+ * This can be used to edit an existing coauthor - for example, changing the role
+ * of an author already attached to a post - but it is not guaranteed to
+ * preserve order. If the sorted order of authors needs to be preserved, call
+ * `update_coauthors_on_post()` and pass the full list of coauthors to update,
+ * sorted.
  *
  * @param int|object $post_id Post to set author as "coauthor" on
  * @param object|string $author user_nicename of Author to add on post (or WP_User object)
@@ -19,7 +22,7 @@ namespace CoAuthorsPlusRoles;
  * @return bool True on success, false on failure (if any of the inputs are not acceptable).
  */
 function set_author_on_post( $post_id, $author, $author_role = false ) {
-	global $coauthors_plus, $wpdb;
+	global $coauthors_plus;
 
 	if ( is_object( $post_id ) && isset( $post_id->ID ) ) {
 		$post_id = $post_id->ID;
@@ -27,10 +30,8 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 
 	$post_id = intval( $post_id );
 
-	if ( is_string( $author ) && intval( $author ) != $author ) {
+	if ( is_string( $author ) ) {
 		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
-	} else if ( is_int( $author ) ) {
-		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
 	}
 
 	if ( ! isset( $author->user_nicename ) ) {
@@ -48,12 +49,11 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 		return false;
 	}
 
-	$drop_existing_role = $wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%s",
-			array( $post_id, $author->user_nicename )
-		)
-	);
+	foreach ( get_post_meta( $post_id ) as $key => $values ) {
+		if ( strpos( $key, 'cap-' ) === 0 && in_array( $author->user_nicename, $values ) ) {
+			delete_post_meta( $post_id, $key, $author->user_nicename );
+		}
+	}
 
 	if ( ! is_object( $author_role ) ) {
 		$author_role = get_author_role( $author_role );
@@ -63,19 +63,43 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 		return false;
 	}
 
-	update_post_meta( $post_id, 'cap-' . $author_role->slug, $author->user_nicename );
+	add_post_meta( $post_id, 'cap-' . $author_role->slug, $author->user_nicename );
 }
 
 
 /**
- * Removes a guest author from a post.
+ * Clear all coauthor data on a post.
+ *
+ * Used when updating coauthors, as otherwise there's no way of ordering them.
+ *
+ * @param int $post_id Post to remove coauthor postmeta from
+ */
+function remove_all_coauthor_meta( $post_id ) {
+
+	// Get the author_role terms as they would be stored in post meta: look up all the author roles
+	// registered, and add the "cap-" prefix to generate the key used here.
+	$roles_meta_keys = array_map(
+		function( $term ) { return 'cap-' . $term->slug; },
+		get_author_roles()
+	);
+
+	foreach ( get_post_meta( $post_id ) as $key => $values ) {
+		if ( in_array( $key, $roles_meta_keys ) ) {
+			delete_post_meta( $post_id, $key );
+		}
+	}
+}
+
+
+/**
+ * Removes an author from a post.
  *
  * @param int|object $post_id Post to set author as "coauthor" on
  * @param object|string $author WP_User object, or nicename/user_login/slug
  * @return bool True on success, false on failure (if any of the inputs are not acceptable).
  */
 function remove_author_from_post( $post_id, $author ) {
-	global $coauthors_plus, $wpdb;
+	global $coauthors_plus;
 
 	if ( is_object( $post_id ) && isset( $post_id->ID ) ) {
 		$post_id = $post_id->ID;
@@ -84,24 +108,25 @@ function remove_author_from_post( $post_id, $author ) {
 	$post_id = intval( $post_id );
 
 	if ( is_string( $author ) ) {
-		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
+		$author = $coauthors_plus->get_coauthor_by( 'user_nicename', sanitize_text_field( $author ) );
+	} else if ( is_int( $author ) ) {
+		$author = $coauthors_plus->get_coauthor_by( 'id', sanitize_text_field( $author ) );
 	}
 
-	if ( is_int( $author ) ) {
-		$author = $coauthors_plus->get_coauthor_by( 'id', $author );
+	if ( !is_object( $author ) ) {
+		return false;
 	}
 
 	// Remove byline term from post: Start by getting the author terms on the post.
 	$existing_authors = wp_get_object_terms( $post_id, $coauthors_plus->coauthor_taxonomy, array( 'fields' => 'slugs' ) );
 	$new_authors = array_diff( $existing_authors, array( 'cap-' . $author->user_nicename ) );
-	wp_set_object_terms( $post_id, $new_authors, $coauthors_plus->coauthor_taxonomy, true );
+	$coauthors_plus->add_coauthors( $post_id, $new_authors, false );
 
 	// Delete meta value setting contributor on post
-	$drop_existing_role = $wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->postmeta} WHERE post_id=%d AND meta_key LIKE 'cap-%%' AND meta_value=%s",
-			array( $post_id, $author->user_nicename )
-		)
-	);
+	foreach ( get_post_meta( $post_id ) as $key => $values ) {
+		if ( strpos( $key, 'cap-' ) === 0 && in_array( $author->user_nicename, $values ) ) {
+			delete_post_meta( $post_id, $key, $author->user_nicename );
+		}
+	}
 }
 

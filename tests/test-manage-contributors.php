@@ -142,7 +142,7 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		);
 
 		// Both should show up in a query with author_role = any
-		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => false ) );
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
 		$this->assertContains( $user1->user_login, wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 
@@ -150,6 +150,29 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$contributors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'contributor' ) );
 		$this->assertNotContains( $user1->user_login, wp_list_pluck( $contributors, 'user_nicename' ) );
 		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $contributors, 'user_nicename' ) );
+
+		// Updating coauthors in a different order; the same tests should pass, but the new order should be preserved.
+		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
+			array( "guest-author-through-ui|||contributor", "{$user1->user_login}|||author" )
+		);
+
+		// Both should show up in a query with author_role = any, and the first one posted should be first
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
+
+		$this->assertContains( $user1->user_login, wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
+		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
+		$this->assertEquals( 'guest-author-through-ui', $updated_coauthors[0]->user_nicename );
+
+		// Updating an individual coauthor; should change role (sorting is presently undefined...)
+		\CoAuthorsPlusRoles\set_author_on_post( $post, 'guest-author-through-ui', 'author' );
+
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'author' ) );
+		$this->assertcount( 2, $updated_coauthors );
+
+		// Removing an individual coauthor using `remove_coauthor_from_post()`
+		\CoAuthorsPlusRoles\remove_author_from_post( $post, 'guest-author-through-ui' );
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post, array( 'author_role' => 'any' ) );
+		$this->assertcount( 1, $updated_coauthors );
 	}
 
 }
