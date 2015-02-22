@@ -29,12 +29,13 @@ var coauthorsSelector, coauthorsSortable;
 				thisLi = link.closest('li.coauthor-sortable'),
 				thisAuthor = link.data( 'author-nicename' );
 
-			coauthorsSelector.open( thisLi );
 			currentlyEditing = thisLi;
 
 			inputs.role.val( link.data('role') );
 			inputs.authorNicename.val( link.data('author-nicename') );
 			inputs.search.val( link.data('author-name') );
+
+			coauthorsSelector.open( thisLi );
 
 			inputs.search.trigger('keyup');
 		},
@@ -524,7 +525,7 @@ var coauthorsSelector, coauthorsSortable;
 			$.post( ajaxurl, query, function( r ) {
 				self.page++;
 				self.querying = false;
-				self.allLoaded = ! r;
+				self.allLoaded = ! r.success;
 				callback( r, query );
 			}, 'json' );
 		}

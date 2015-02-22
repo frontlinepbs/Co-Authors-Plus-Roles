@@ -413,7 +413,13 @@ function ajax_search_coauthors() {
 	$search = isset( $_REQUEST['search'] ) ? sanitize_text_field( $_REQUEST['search'] ) : false;
 	$post_ID = isset( $_REQUEST['postId'] ) ? intval( $_REQUEST['postId'] ) : null;
 	$exclude_authors = isset( $_REQUEST['exclude'] ) ? array_map( 'sanitize_text_field', $_REQUEST['exclude'] ) : null;
+
 	$coauthors = search_coauthors( $search, $post_ID, $exclude_authors );
+
+	$paginate = intval( $_REQUEST['page'] );
+	$results_per_page = 20;
+
+	$coauthors = array_slice( $coauthors, ( $paginate -1 ) * $results_per_page, $results_per_page );
 
 	if ( $coauthors ) {
 		wp_send_json_success( array_values( $coauthors ) );
