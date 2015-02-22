@@ -83,11 +83,16 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$guest_author_2_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_2 );
 
 		// search_coauthors() on a post with no search term specified should return all coauthors on the site
-		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false );
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
 
 		// Passing an exclude array to search_coauthors() should exclude them from the results returned
-		$contributors_minus_ga1 = CoAuthorsPlusRoles\search_coauthors( false, $post, array( $guest_author_1_user_object->user_nicename ) );
+		$contributors_minus_ga1 = CoAuthorsPlusRoles\search_coauthors( false,
+			array(
+				'post_ID' => $post,
+				'exclude' => array( $guest_author_1_user_object->user_nicename )
+			)
+		);
 		$this->assertNotContains( $guest_author_1, wp_list_pluck( $contributors_minus_ga1, 'ID' ) );
 
 
@@ -98,7 +103,7 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_credits_on_post, 'ID' ) );
 
 		// After adding author to post, search_coauthors() on that post should no longer return them.
-		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, "post_ID=$post" );
 		$this->assertNotContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
 
 		// Setting a guest author as a non-byline role on a post should also include
@@ -109,7 +114,7 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 
 		// After adding author to post in non-byline role, search_coauthors() on that post should no
 		// longer return them.
-		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, "post_ID=$post" );
 		$this->assertNotContains( $guest_author_2, wp_list_pluck( $all_contributors, 'ID' ) );
 
 	}

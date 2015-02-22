@@ -351,11 +351,18 @@ function coauthor_select_dialog() {
  * authors on the current post.
  *
  * @param string $search_term String to search for. Can be empty.
- * @param integer $post_ID The post being searched on.
- * @param array $exclude (optional) A list of authors to exclude. If present, this overrides the $post_id parameter.
+ * @param args Query-style args to modify the search:
+ *              'post_ID' (int) The post being searched on. Authors from this post will be excluded
+ *              'exclude' (array) A list of authors (nicenames) to exclude. If present, overrides the post_id parameter
  */
-function search_coauthors( $search_term, $post_ID = null, $exclude = null ) {
+function search_coauthors( $search_term, $args = array() ) {
 	global $coauthors_plus;
+
+	$defaults = array(
+		'post_ID' => null,
+		'exclude' => null,
+	);
+	$args = wp_parse_args( $args, $defaults );
 
 	if ( isset( $search_term ) && $search_term ) {
 		$coauthors = $coauthors_plus->search_authors( $search_term );
@@ -365,18 +372,18 @@ function search_coauthors( $search_term, $post_ID = null, $exclude = null ) {
 
 	$existing_authors = array();
 
-	if ( isset( $post_ID ) && intval( $post_ID ) > 0 ) {
-		$existing_authors = get_coauthors( $post_ID, array( 'author_role' => 'any' ) );
+	if ( isset( $args['post_ID'] ) && intval( $args['post_ID'] ) > 0 ) {
+		$existing_authors = get_coauthors( $args['post_ID'], array( 'author_role' => 'any' ) );
 	}
 
-	if ( isset( $exclude ) && count( $exclude ) > 0 ) {
+	if ( isset( $args['exclude'] ) && count( $args['exclude'] ) > 0 ) {
 
 		// We're expecting a flat array of nicenames... Turn that into an array
 		// of guest author objects by mapping get_coauthor_by over it.
 		$existing_authors = array_map( function($author) {
 			global $coauthors_plus;
 			return $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
-		}, $exclude );
+		}, $args['exclude'] );
 
 	}
 
