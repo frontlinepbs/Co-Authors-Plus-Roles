@@ -449,28 +449,53 @@ var coauthorsSelector, coauthorsSortable;
 			this.element.scrollTop( 0 );
 		},
 		process: function( results, params ) {
-			var list = '', alt = true, classes = '',
-				firstPage = params.page == 1;
+			var alt = true, classes = '',
+				elt = this.ul,
+				firstPage = params.page === 1;
+
+			if ( firstPage ) {
+				elt.html('');
+			}
 
 			if ( typeof results.success === 'undefined' || ! results.success ) {
 				if ( firstPage ) {
-					list += '<li class="unselectable no-matches-found"><span class="item-title"><em>' +
-						coauthorsL10n.noMatchesFound + '</em></span></li>';
+					var newLi = $( '<li></li>' ).attr( 'class', 'unselectable no-matches-found' )
+						.append( $( '<span></span>' ).attr( 'class', 'item-title' )
+							.append( $( '<em></em>' ).text( coauthorsL10n.noMatchesFound ) )
+						);
+					elt.html( newLi );
 				}
 			} else {
 				$.each( results.data, function() {
 					classes = alt ? 'alternate' : '';
 					classes += this.post_title ? '' : ' no-title';
-					list += classes ? '<li class="' + classes + '">' : '<li>';
-					list += '<input type="hidden" class="item-nicename" value="' + this.user_nicename + '" />';
-					list += '<span class="item-title">';
-					list += this.display_name ? this.display_name : coauthorsL10n.noTitle;
-					list += '</span><span class="item-info">' + this.type.replace('-',' ') + '</span></li>';
+
+					var newLi = $( '<li></li>').attr( 'class', classes )
+						.append( $( '<input />'  )
+							.attr({
+								'type': 'hidden',
+								'class': 'item-nicename'
+							})
+							.val( this.user_nicename )
+						)
+						.append( $( '<span></span>')
+							.attr({
+								'class': 'item-title'
+							})
+							.text( this.display_name ? this.display_name : coauthorsL10n.noTitle )
+						)
+						.append(
+							$('<span></span>')
+							.attr({
+								'class': 'item-info'
+							})
+							.text( this.type.replace('-',' ') )
+						);
+
+					elt.append( newLi );
 					alt = ! alt;
 				});
 			}
-
-			this.ul[ firstPage ? 'html' : 'append' ]( list );
 		},
 		maybeLoad: function() {
 			var self = this,
