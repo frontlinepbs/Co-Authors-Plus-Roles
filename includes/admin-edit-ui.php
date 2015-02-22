@@ -367,6 +367,7 @@ function search_coauthors( $search_term, $args = array() ) {
 		'post_ID' => null,
 		'exclude' => null,
 	);
+
 	$args = wp_parse_args( $args, $defaults );
 
 	if ( isset( $search_term ) && $search_term ) {
@@ -415,11 +416,19 @@ function search_coauthors( $search_term, $args = array() ) {
 function ajax_search_coauthors() {
 	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_search_nonce' );
 
-	$search = isset( $_REQUEST['search'] ) ? sanitize_text_field( $_REQUEST['search'] ) : false;
-	$post_ID = isset( $_REQUEST['postId'] ) ? intval( $_REQUEST['postId'] ) : null;
-	$exclude_authors = isset( $_REQUEST['exclude'] ) ? array_map( 'sanitize_text_field', $_REQUEST['exclude'] ) : null;
+	$search = isset( $_REQUEST['search'] ) ?
+		sanitize_text_field( $_REQUEST['search'] ) : false;
+	$post_ID = isset( $_REQUEST['postId'] ) ?
+		intval( $_REQUEST['postId'] ) : null;
+	$exclude_authors = isset( $_REQUEST['exclude'] ) ?
+		array_map( 'sanitize_text_field', $_REQUEST['exclude'] ) : null;
 
-	$coauthors = search_coauthors( $search, $post_ID, $exclude_authors );
+	$coauthors = search_coauthors( $search,
+		array(
+			'post_ID' => $post_ID,
+			'exclude' => $exclude_authors
+		)
+	);
 
 	$paginate = intval( $_REQUEST['page'] );
 	$results_per_page = 20;
