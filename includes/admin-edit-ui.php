@@ -279,18 +279,7 @@ function coauthor_select_dialog() {
 				</button>
 			</div>
 			<div id="coauthor-select">
-				<div id="coauthor-options">
-					<p class="howto"><?php esc_html_e( 'Choose the role for this contributor:', 'co-authors-plus-roles' ); ?></p>
-					<select id="coauthor-select-role" name="coauthor-select-role">
-						<option value=""><?php esc_html_e( 'Choose a role', 'co-authors-plus-roles' ); ?></option>
-					<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
-						foreach ( $roles_available as $role ) {
-							echo '<option value="' . esc_attr( $role->slug ) . '">' . esc_html( $role->name ) . '</option>';
-						}
-					?>
-					</select>
-					<input type="hidden" id="coauthor-author-nicename" value="" />
-				</div>
+				<input type="hidden" id="coauthor-author-nicename" value="" />
 				<div id="coauthor-search-panel">
 					<div class="coauthor-search-wrapper">
 						<label>
@@ -316,6 +305,17 @@ function coauthor_select_dialog() {
 						</div>
 					</div>
 				</div>
+			</div>
+			<div id="coauthor-options">
+				<p class="howto"><?php esc_html_e( 'Choose the role for this contributor:', 'co-authors-plus-roles' ); ?></p>
+				<select id="coauthor-select-role" name="coauthor-select-role">
+					<option value=""><?php esc_html_e( 'Choose a role', 'co-authors-plus-roles' ); ?></option>
+				<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
+					foreach ( $roles_available as $role ) {
+						echo '<option value="' . esc_attr( $role->slug ) . '">' . esc_html( $role->name ) . '</option>';
+					}
+				?>
+				</select>
 			</div>
 			<div class="submitbox">
 				<div id="coauthor-select-cancel">

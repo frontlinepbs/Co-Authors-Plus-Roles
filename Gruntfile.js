@@ -28,6 +28,9 @@ module.exports = function(grunt) {
     },
 
     watch: {
+      options: {
+        livereload: true
+      },
       php: {
         files: ['*.php','includes/**/*.php','tests/**/*.php'],
         tasks: ['phpunit']
