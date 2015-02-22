@@ -230,6 +230,10 @@ function ajax_template_coauthor_sortable() {
 		wp_send_json_error( 'Missing required information.' );
 	}
 
+	if ( is_object( $role ) ) {
+		$role = $role->slug;
+	}
+
 	ob_start();
 	template_coauthor_sortable( $coauthor, $role );
 	$sortable_markup = ob_get_clean();
