@@ -190,14 +190,19 @@ function template_coauthor_sortable( $coauthor, $author_role = null ) {
 								$coauthor->author_role : esc_html__( 'byline', 'co-authors-plus-roles' ); ?>
 				<span class="author-role sortable-flex-section">
 					<a class="edit-coauthor"
-						data-author-name="<?php echo esc_attr( $coauthor->user_nicename ); ?>"
-						data-role="<?php echo esc_attr( $author_role ); ?>"
+						data-author-name="<?php echo esc_attr( $coauthor->display_name ); ?>"
+						data-author-type="<?php echo esc_attr( $coauthor->type ); ?>"
+						data-author-email="<?php echo esc_attr( $coauthor->user_email ); ?>"
+						data-role="<?php echo esc_attr( $coauthor->author_role ); ?>"
 						data-author-nicename="<?php echo esc_attr( $coauthor->user_nicename ); ?>"
+						title="<?php echo esc_attr__( 'Change the role which this coauthor is assigned to', 'co-authors-plus-roles' ); ?>"
 						><?php echo esc_html( $author_role ); ?></a>
 				</span>
 				<span class="author-controls sortable-flex-section">
 					<span class="publishing-actions">
-						<a class="remove-coauthor submitdelete deletion"><?php esc_attr_e( 'Remove', 'co-authors-plus-roles' ); ?></a>
+						<a class="remove-coauthor submitdelete deletion"
+							title="<?php echo esc_attr__( 'Remove this coauthor from the post', 'co-authors-plus-roles' ); ?>"
+							><?php esc_attr_e( 'Remove', 'co-authors-plus-roles' ); ?></a>
 					</span>
 				</span>
 				<input type="hidden" name="coauthors[]" value="<?php echo esc_attr( $coauthor_input_value ); ?>" />
@@ -296,8 +301,8 @@ function coauthor_select_dialog() {
 					</div>
 					<div id="most-recent-results" class="query-results" tabindex="0">
 						<div class="query-notice" id="query-notice-message">
-							<em class="query-notice-default"><?php esc_html_e( 'No search term specified. Showing recent items.', 'co-authors-plus-roles' ); ?></em>
-							<em class="query-notice-hint screen-reader-text"><?php esc_html_e( 'Search or use up and down arrow keys to select an item.', 'co-authors-plus-roles' ); ?></em>
+							<em class="query-notice-default"><?php esc_html_e( 'No search term specified. Showing most used authors.', 'co-authors-plus-roles' ); ?></em>
+							<em class="query-notice-hint screen-reader-text"><?php esc_html_e( 'Search or use up and down arrow keys to select an author.', 'co-authors-plus-roles' ); ?></em>
 						</div>
 						<ul></ul>
 						<div class="river-waiting">
@@ -309,7 +314,7 @@ function coauthor_select_dialog() {
 			<div id="coauthor-options">
 				<p class="howto"><?php esc_html_e( 'Choose the role for this contributor:', 'co-authors-plus-roles' ); ?></p>
 				<select id="coauthor-select-role" name="coauthor-select-role">
-					<option value=""><?php esc_html_e( 'Choose a role', 'co-authors-plus-roles' ); ?></option>
+					<option value="" selected><?php esc_html_e( 'Choose a role', 'co-authors-plus-roles' ); ?></option>
 				<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
 					foreach ( $roles_available as $role ) {
 						echo '<option value="' . esc_attr( $role->slug ) . '">' . esc_html( $role->name ) . '</option>';
