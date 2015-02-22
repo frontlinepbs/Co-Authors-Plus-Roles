@@ -352,8 +352,9 @@ function coauthor_select_dialog() {
  *
  * @param string $search_term String to search for. Can be empty.
  * @param integer $post_ID The post being searched on.
+ * @param array $exclude (optional) A list of authors to exclude. If present, this overrides the $post_id parameter.
  */
-function search_coauthors( $search_term, $post_ID ) {
+function search_coauthors( $search_term, $post_ID = null, $exclude = null ) {
 	global $coauthors_plus;
 
 	if ( isset( $search_term ) && $search_term ) {
@@ -362,9 +363,24 @@ function search_coauthors( $search_term, $post_ID ) {
 		$coauthors = get_top_authors();
 	}
 
+	$existing_authors = array();
+
 	if ( isset( $post_ID ) && intval( $post_ID ) > 0 ) {
 		$existing_authors = get_coauthors( $post_ID, array( 'author_role' => 'any' ) );
+	}
 
+	if ( isset( $exclude ) && count( $exclude ) > 0 ) {
+
+		// We're expecting a flat array of nicenames... Turn that into an array
+		// of guest author objects by mapping get_coauthor_by over it.
+		$existing_authors = array_map( function($author) {
+			global $coauthors_plus;
+			return $coauthors_plus->get_coauthor_by( 'user_nicename', $author );
+		}, $exclude );
+
+	}
+
+	if ( count( $existing_authors ) ) {
 		// Remove array elements from $coauthors that are identical to existing authors.
 		$coauthors = array_udiff( $coauthors, $existing_authors,
 			function( $author, $existing ) {
@@ -388,8 +404,9 @@ function ajax_search_coauthors() {
 	check_ajax_referer( 'coauthor-select', '_ajax_coauthor_search_nonce' );
 
 	$search = isset( $_REQUEST['search'] ) ? sanitize_text_field( $_REQUEST['search'] ) : false;
-	$post_ID = isset( $_REQUEST['postId'] ) ? intval( $_REQUEST['postId'] ) : false;
-	$coauthors = search_coauthors( $search, $post_ID );
+	$post_ID = isset( $_REQUEST['postId'] ) ? intval( $_REQUEST['postId'] ) : null;
+	$exclude_authors = isset( $_REQUEST['exclude'] ) ? array_map( 'sanitize_text_field', $_REQUEST['exclude'] ) : null;
+	$coauthors = search_coauthors( $search, $post_ID, $exclude_authors );
 
 	if ( $coauthors ) {
 		wp_send_json_success( array_values( $coauthors ) );

@@ -86,6 +86,11 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
 
+		// Passing an exclude array to search_coauthors() should exclude them from the results returned
+		$contributors_minus_ga1 = CoAuthorsPlusRoles\search_coauthors( false, $post, array( $guest_author_1_user_object->user_nicename ) );
+		$this->assertNotContains( $guest_author_1, wp_list_pluck( $contributors_minus_ga1, 'ID' ) );
+
+
 		// Setting a guest author as an author on a post should include
 		// them in the get_coauthors() response for that post.
 		\CoAuthorsPlusRoles\set_author_on_post( $post, $guest_author_1_user_object );

@@ -11,6 +11,15 @@ var coauthorsSelector, coauthorsSortable;
 		list: $('#coauthors-select-list'),
 		toggle: $('#coauthor-add-toggle'),
 
+		currentAuthors: function() {
+			var list = coauthorsSortable.list.find( 'li.coauthor-sortable' ).not( currentlyEditing );
+			return _.map( list,
+				function(li) {
+					return _.first( $( li ).find( '[name="coauthors[]"]' ).val().split('|||') );
+				}
+			);
+		},
+
 		removeSortableLi: function(evt) {
 			$(evt.currentTarget).closest('li.coauthor-sortable').remove();
 		},
@@ -502,7 +511,7 @@ var coauthorsSelector, coauthorsSortable;
 				query = {
 					action : 'coauthor-select-ajax',
 					page : this.page,
-					postId: inputs.postId.val(),
+					exclude: coauthorsSortable.currentAuthors(),
 					'_ajax_coauthor_search_nonce' : inputs.nonce.val()
 				};
 
