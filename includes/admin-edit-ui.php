@@ -226,14 +226,15 @@ function ajax_template_coauthor_sortable() {
 	$coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', sanitize_text_field( $_REQUEST['authorNicename'] ) );
 	$role = get_author_role( sanitize_text_field( $_REQUEST['authorRole'] ) );
 
-	if ( ! $coauthor || ! $role ) {
-		wp_die( 'Missing required information.' );
+	if ( ! $coauthor ) {
+		wp_send_json_error( 'Missing required information.' );
 	}
 
-	$coauthor->author_role = $role->slug;
+	ob_start();
+	template_coauthor_sortable( $coauthor, $role );
+	$sortable_markup = ob_get_clean();
 
-	template_coauthor_sortable( $coauthor );
-	die(0);
+	wp_send_json_success( $sortable_markup );
 }
 
 add_action( 'wp_ajax_coauthor-sortable-template', 'CoAuthorsPlusRoles\ajax_template_coauthor_sortable' );

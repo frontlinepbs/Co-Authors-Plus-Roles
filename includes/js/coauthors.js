@@ -196,10 +196,8 @@ var coauthorsSelector, coauthorsSortable;
 		},
 
 		update: function() {
-			// validate that an author ID and role are selected
-			// XXX this is p awful. work out a better UX for this form
-			if ( ! inputs.authorNicename.val() || ! inputs.role.val() ) {
-				alert( "something's not filled out!" );
+			// validate that an author ID is selected
+			if ( ! inputs.authorNicename.val() ) {
 				return false; // TODO: helpful error message
 			}
 
@@ -211,11 +209,16 @@ var coauthorsSelector, coauthorsSortable;
 				};
 
 			$.post( ajaxurl, query, function( r ) {
-				if ( currentlyEditing ) {
-					currentlyEditing.html( r )
-					currentlyEditing = false;
+				if ( r.success ) {
+					if ( currentlyEditing ) {
+						currentlyEditing.html( r.data )
+						currentlyEditing = false;
+					} else {
+						coauthorsSortable.list.append( r.data );
+					}
 				} else {
-					coauthorsSortable.list.append( r );
+					coauthorsSortable.list.after( r.data );
+
 				}
 
 			});
