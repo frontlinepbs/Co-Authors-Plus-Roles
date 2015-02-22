@@ -1,11 +1,15 @@
+/******************************
+ * Sortables in metabox
+ *****************************/
+
 .coauthor-sortable {
 	height: 68px;
-	width: auto;
+	width: 100%;
 	max-width: 600px;
 }
 
 	.coauthor-sortable .menu-item-handle {
-		width: 600px;
+		width: auto;
 		height: 48px;
 		padding-left: 10px;
 		display: flex;
@@ -25,7 +29,7 @@
 
 	.author-info {
 		height: 40px;
-		flex-grow: 2;
+		flex-grow: 1.5;
 		line-height: 1.25;
 	}
 
@@ -48,10 +52,27 @@
 		text-transform: uppercase;
 	}
 
+		a.edit-coauthor {
+			cursor: pointer;
+		}
+
 	.author-controls {
 		text-align: right;
 	}
 
+		a.remove-coauthor {
+			color: #a00;
+			cursor: pointer;
+		}
+
+			a.remove-coauthor:hover {
+				color: #f00;
+			}
+
+
+/******************************
+ * Coauthor Selection Modal
+ *****************************/
 
 #coauthor-select-backdrop {
 	position: fixed;
@@ -254,7 +275,7 @@
 	left: 16px;
 	right: 16px;
 	bottom: 8px;
-	top: 80px;
+	top: 88px;
 }
 
 #coauthor-select li {
@@ -389,30 +410,42 @@
 	margin-bottom: 0;
 }
 
-@media screen and ( max-width: 782px ) {
-	#coauthor-select-wrap {
-		height: 280px;
-		margin-top: -140px;
-	}
 
-	#coauthor-select-wrap.search-panel-visible .query-results {
-		top: 235px;
-	}
-
-	#coauthor-selector {
-		padding: 0 16px 60px;
-	}
-
-	#coauthor-select-wrap.search-panel-visible #coauthor-selector {
-		bottom: 52px;
-	}
-
-	#coauthor-select-cancel {
-		line-height: 32px;
-	}
-}
+/******************************
+ * Responsive Adjustments
+ * for small screens
+ *****************************/
 
 @media screen and ( max-width: 520px ) {
+
+	.author-info, .author-role {
+		flex: auto;
+	}
+
+	.author-controls {
+		flex: 0 0 36px;
+		overflow: hidden;
+	}
+
+	.author-controls .remove-coauthor {
+		display: block;
+		position: relative;
+		width: 36px;
+		height: 36px;
+		text-indent: 100%;
+	}
+
+		.author-controls .remove-coauthor:before {
+			font: normal 20px/36px 'dashicons';
+			speak: none;
+			-moz-osx-font-smoothing: grayscale;
+			display: block;
+			width: 36px;
+			height: 36px;
+			text-indent: 0;
+			content: '\f158';
+		}
+
 	#coauthor-select-wrap {
 		width: auto;
 		margin-left: 0;
@@ -425,6 +458,21 @@
 @media screen and ( max-height: 520px ) {
 	#coauthor-select-wrap {
 		transition: none;
+		height: auto;
+		margin-top: 0;
+		top: 10px;
+		bottom: 10px;
+	}
+
+	#coauthor-select {
+		overflow: auto;
+		min-height: 120px;
+		padding-bottom: 36px;
+	}
+
+	#coauthor-options {
+		position: static;
+
 	}
 
 	#coauthor-select-wrap.search-panel-visible {
@@ -443,21 +491,3 @@
 	}
 }
 
-@media screen and ( max-height: 290px ) {
-	#coauthor-select-wrap {
-		height: auto;
-		margin-top: 0;
-		top: 10px;
-		bottom: 10px;
-	}
-
-	#coauthor-selector {
-		overflow: auto;
-		height: calc(100% - 92px);
-		padding-bottom: 2px;
-	}
-
-	#search-panel .query-results {
-		position: static;
-	}
-}
