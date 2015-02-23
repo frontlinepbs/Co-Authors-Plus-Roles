@@ -142,3 +142,17 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 	return $coauthors;
 
 }
+
+
+/**
+ * Fixes behavior in searching authors where results were limited to 10 authors.
+ *
+ * We're handling pagination in the UI, so we want search_authors to return everything.
+ *
+ */
+function return_all_authors( $args ) {
+	unset( $args['number'] );
+	return $args;
+}
+
+add_filter( 'coauthors_search_authors_get_terms_args', 'CoAuthorsPlusRoles\return_all_authors', 10, 1 );
