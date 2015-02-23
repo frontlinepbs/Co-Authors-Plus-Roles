@@ -161,6 +161,18 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertNotContains( $user1->user_login, wp_list_pluck( $contributors, 'user_nicename' ) );
 		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $contributors, 'user_nicename' ) );
 
+		// It should be possible to save more than one "byline" author on a post, through the UI.
+		// Also, the string "byline" for role should behave identically to an empty string.
+		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
+			array( "{$user1->user_login}|||", "guest-author-through-ui|||byline" )
+		);
+
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post );
+
+		$this->assertcount( 2, $updated_coauthors );
+		$this->assertEquals( $user1->user_login, $updated_coauthors[0]->user_nicename );
+		$this->assertEquals( 'guest-author-through-ui', $updated_coauthors[1]->user_nicename );
+
 		// Updating coauthors in a different order; the same tests should pass, but the new order should be preserved.
 		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
 			array( "guest-author-through-ui|||contributor", "{$user1->user_login}|||author" )
@@ -172,6 +184,7 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertContains( $user1->user_login, wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 		$this->assertEquals( 'guest-author-through-ui', $updated_coauthors[0]->user_nicename );
+
 
 		// Updating an individual coauthor; should change role (sorting is presently undefined...)
 		\CoAuthorsPlusRoles\set_author_on_post( $post, 'guest-author-through-ui', 'author' );

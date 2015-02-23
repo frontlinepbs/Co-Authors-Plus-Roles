@@ -507,6 +507,13 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 					global $coauthors_plus;
 
 					list( $author_name, $role ) = explode( '|||', $coauthor_string );
+
+					// Empty roles can come in either as the string "byline",
+					// or as an empty string. Handle them both the same.
+					if ( $role === 'byline' ) {
+						$role = '';
+					}
+
 					$new_coauthor = $coauthors_plus->get_coauthor_by( 'user_nicename', sanitize_text_field( $author_name ) );
 					if ( $new_coauthor ) {
 						$new_coauthor->author_role = sanitize_text_field( $role );
