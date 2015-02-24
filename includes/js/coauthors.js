@@ -11,6 +11,15 @@ var coauthorsSelector, coauthorsSortable;
 		list: $('#coauthors-select-list'),
 		toggle: $('#coauthor-add-toggle'),
 
+		currentAuthors: function() {
+			var list = coauthorsSortable.list.find( 'li.coauthor-sortable' ).not( currentlyEditing );
+			return _.map( list,
+				function(li) {
+					return _.first( $( li ).find( '[name="coauthors[]"]' ).val().split('|||') );
+				}
+			);
+		},
+
 		removeSortableLi: function(evt) {
 			$(evt.currentTarget).closest('li.coauthor-sortable').remove();
 		},
@@ -20,12 +29,13 @@ var coauthorsSelector, coauthorsSortable;
 				thisLi = link.closest('li.coauthor-sortable'),
 				thisAuthor = link.data( 'author-nicename' );
 
-			coauthorsSelector.open( thisLi );
 			currentlyEditing = thisLi;
 
 			inputs.role.val( link.data('role') );
 			inputs.authorNicename.val( link.data('author-nicename') );
 			inputs.search.val( link.data('author-name') );
+
+			coauthorsSelector.open( thisLi );
 
 			inputs.search.trigger('keyup');
 		},
@@ -186,10 +196,8 @@ var coauthorsSelector, coauthorsSortable;
 		},
 
 		update: function() {
-			// validate that an author ID and role are selected
-			// XXX this is p awful. work out a better UX for this form
-			if ( ! inputs.authorNicename.val() || ! inputs.role.val() ) {
-				alert( "something's not filled out!" );
+			// validate that an author ID is selected
+			if ( ! inputs.authorNicename.val() ) {
 				return false; // TODO: helpful error message
 			}
 
@@ -201,11 +209,16 @@ var coauthorsSelector, coauthorsSortable;
 				};
 
 			$.post( ajaxurl, query, function( r ) {
-				if ( currentlyEditing ) {
-					currentlyEditing.html( r )
-					currentlyEditing = false;
+				if ( r.success ) {
+					if ( currentlyEditing ) {
+						currentlyEditing.html( r.data )
+						currentlyEditing = false;
+					} else {
+						coauthorsSortable.list.append( r.data );
+					}
 				} else {
-					coauthorsSortable.list.append( r );
+					coauthorsSortable.list.after( r.data );
+
 				}
 
 			});
@@ -436,28 +449,53 @@ var coauthorsSelector, coauthorsSortable;
 			this.element.scrollTop( 0 );
 		},
 		process: function( results, params ) {
-			var list = '', alt = true, classes = '',
-				firstPage = params.page == 1;
+			var alt = true, classes = '',
+				elt = this.ul,
+				firstPage = params.page === 1;
+
+			if ( firstPage ) {
+				elt.html('');
+			}
 
 			if ( typeof results.success === 'undefined' || ! results.success ) {
 				if ( firstPage ) {
-					list += '<li class="unselectable no-matches-found"><span class="item-title"><em>' +
-						coauthorsL10n.noMatchesFound + '</em></span></li>';
+					var newLi = $( '<li></li>' ).attr( 'class', 'unselectable no-matches-found' )
+						.append( $( '<span></span>' ).attr( 'class', 'item-title' )
+							.append( $( '<em></em>' ).text( coauthorsL10n.noMatchesFound ) )
+						);
+					elt.html( newLi );
 				}
 			} else {
 				$.each( results.data, function() {
 					classes = alt ? 'alternate' : '';
 					classes += this.post_title ? '' : ' no-title';
-					list += classes ? '<li class="' + classes + '">' : '<li>';
-					list += '<input type="hidden" class="item-nicename" value="' + this.user_nicename + '" />';
-					list += '<span class="item-title">';
-					list += this.display_name ? this.display_name : coauthorsL10n.noTitle;
-					list += '</span><span class="item-info">' + this.type.replace('-',' ') + '</span></li>';
+
+					var newLi = $( '<li></li>').attr( 'class', classes )
+						.append( $( '<input />'  )
+							.attr({
+								'type': 'hidden',
+								'class': 'item-nicename'
+							})
+							.val( this.user_nicename )
+						)
+						.append( $( '<span></span>')
+							.attr({
+								'class': 'item-title'
+							})
+							.text( this.display_name ? this.display_name : coauthorsL10n.noTitle )
+						)
+						.append(
+							$('<span></span>')
+							.attr({
+								'class': 'item-info'
+							})
+							.text( this.type.replace('-',' ') )
+						);
+
+					elt.append( newLi );
 					alt = ! alt;
 				});
 			}
-
-			this.ul[ firstPage ? 'html' : 'append' ]( list );
 		},
 		maybeLoad: function() {
 			var self = this,
@@ -502,7 +540,7 @@ var coauthorsSelector, coauthorsSortable;
 				query = {
 					action : 'coauthor-select-ajax',
 					page : this.page,
-					postId: inputs.postId.val(),
+					exclude: coauthorsSortable.currentAuthors(),
 					'_ajax_coauthor_search_nonce' : inputs.nonce.val()
 				};
 
@@ -515,7 +553,7 @@ var coauthorsSelector, coauthorsSortable;
 			$.post( ajaxurl, query, function( r ) {
 				self.page++;
 				self.querying = false;
-				self.allLoaded = ! r;
+				self.allLoaded = ! r.success;
 				callback( r, query );
 			}, 'json' );
 		}

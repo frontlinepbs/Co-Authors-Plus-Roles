@@ -83,8 +83,18 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$guest_author_2_user_object = $coauthors_plus->get_coauthor_by( 'id', $guest_author_2 );
 
 		// search_coauthors() on a post with no search term specified should return all coauthors on the site
-		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false );
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
+
+		// Passing an exclude array to search_coauthors() should exclude them from the results returned
+		$contributors_minus_ga1 = CoAuthorsPlusRoles\search_coauthors( false,
+			array(
+				'post_ID' => $post,
+				'exclude' => array( $guest_author_1_user_object->user_nicename )
+			)
+		);
+		$this->assertNotContains( $guest_author_1, wp_list_pluck( $contributors_minus_ga1, 'ID' ) );
+
 
 		// Setting a guest author as an author on a post should include
 		// them in the get_coauthors() response for that post.
@@ -93,7 +103,7 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertContains( $guest_author_1, wp_list_pluck( $all_credits_on_post, 'ID' ) );
 
 		// After adding author to post, search_coauthors() on that post should no longer return them.
-		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, "post_ID=$post" );
 		$this->assertNotContains( $guest_author_1, wp_list_pluck( $all_contributors, 'ID' ) );
 
 		// Setting a guest author as a non-byline role on a post should also include
@@ -104,7 +114,7 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 
 		// After adding author to post in non-byline role, search_coauthors() on that post should no
 		// longer return them.
-		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, $post );
+		$all_contributors = CoAuthorsPlusRoles\search_coauthors( false, "post_ID=$post" );
 		$this->assertNotContains( $guest_author_2, wp_list_pluck( $all_contributors, 'ID' ) );
 
 	}
@@ -151,6 +161,18 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertNotContains( $user1->user_login, wp_list_pluck( $contributors, 'user_nicename' ) );
 		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $contributors, 'user_nicename' ) );
 
+		// It should be possible to save more than one "byline" author on a post, through the UI.
+		// Also, the string "byline" for role should behave identically to an empty string.
+		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
+			array( "{$user1->user_login}|||", "guest-author-through-ui|||byline" )
+		);
+
+		$updated_coauthors = \CoAuthorsPlusRoles\get_coauthors( $post );
+
+		$this->assertcount( 2, $updated_coauthors );
+		$this->assertEquals( $user1->user_login, $updated_coauthors[0]->user_nicename );
+		$this->assertEquals( 'guest-author-through-ui', $updated_coauthors[1]->user_nicename );
+
 		// Updating coauthors in a different order; the same tests should pass, but the new order should be preserved.
 		\CoAuthorsPlusRoles\update_coauthors_on_post( $post,
 			array( "guest-author-through-ui|||contributor", "{$user1->user_login}|||author" )
@@ -162,6 +184,7 @@ class Test_Manage_Author_Roles extends CoAuthorsPlusRoles_TestCase {
 		$this->assertContains( $user1->user_login, wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 		$this->assertContains( 'guest-author-through-ui', wp_list_pluck( $updated_coauthors, 'user_nicename' ) );
 		$this->assertEquals( 'guest-author-through-ui', $updated_coauthors[0]->user_nicename );
+
 
 		// Updating an individual coauthor; should change role (sorting is presently undefined...)
 		\CoAuthorsPlusRoles\set_author_on_post( $post, 'guest-author-through-ui', 'author' );
