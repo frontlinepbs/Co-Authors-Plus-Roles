@@ -1,5 +1,5 @@
 === Co-Authors Plus Roles ===
-Contributors: goldenapples
+Contributors: fusionengineering, goldenapples
 Requires at least: 3.0.1
 Tested up to: 4.1
 License: GPLv2 or later
