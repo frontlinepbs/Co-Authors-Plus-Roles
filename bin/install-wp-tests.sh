@@ -87,8 +87,8 @@ install_test_suite() {
 }
 
 install_dependencies() {
-	mkdir -p "$WP_TESTS_DIR"wp-content/plugins
-	cd "$WP_TESTS_DIR"wp-content/plugins && git clone https://github.com/Automattic/Co-Authors-Plus.git
+	mkdir -p "$WP_TESTS_DIR"/wp-content/plugins
+	cd "$WP_TESTS_DIR"/wp-content/plugins && git clone https://github.com/Automattic/Co-Authors-Plus.git
 }
 
 install_db() {
