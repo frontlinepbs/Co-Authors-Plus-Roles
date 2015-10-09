@@ -12,7 +12,7 @@ function _manually_load_plugin() {
 	global $_tests_dir;
 	require $_tests_dir . '/wp-content/plugins/Co-Authors-Plus/co-authors-plus.php';
 	include dirname( __FILE__ ) . '/../co-authors-plus-roles.php';
-	include_once __FILE__ . 'coauthorsplusroles-testcase.php';
+	include_once dirname( __FILE__ ) . '/coauthorsplusroles-testcase.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
