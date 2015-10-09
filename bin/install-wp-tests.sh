@@ -86,6 +86,11 @@ install_test_suite() {
 
 }
 
+install_dependencies() {
+	mkdir -p "$WP_TESTS_DIR"wp-content/plugins
+	cd "$WP_TESTS_DIR"wp-content/plugins && git clone https://github.com/Automattic/Co-Authors-Plus.git
+}
+
 install_db() {
 	# parse DB_HOST for port or socket references
 	local PARTS=(${DB_HOST//\:/ })
@@ -109,4 +114,5 @@ install_db() {
 
 install_wp
 install_test_suite
+install_dependencies
 install_db
