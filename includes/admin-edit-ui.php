@@ -112,10 +112,11 @@ function coauthors_meta_box( $post ) {
 
 	// Extend the coauthors as returned from Co-Authors Plus with the 'author_role' field, as it won't
 	// have that field if the author hasn't been saved yet.
+	$default_role = apply_filters( 'coauthors_default_role', '', $post_id );
 	$coauthors = array_map(
-		function($author) {
+		function($author) use ( $default_role ) {
 			if ( ! isset( $author->author_role ) ) {
-				$author->author_role = '';
+				$author->author_role = $default_role;
 			}
 			return $author;
 		}, $coauthors );
