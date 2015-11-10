@@ -113,9 +113,9 @@ function coauthors_meta_box( $post ) {
 	// Extend the coauthors as returned from Co-Authors Plus with the 'author_role' field, as it won't
 	// have that field if the author hasn't been saved yet.
 	$coauthors = array_map(
-		function($author) {
+		function($author) use ( $post_id ) {
 			if ( ! isset( $author->author_role ) ) {
-				$author->author_role = '';
+				$author->author_role = apply_filters( 'coauthors_default_role', '', $author, $post_id );
 			}
 			return $author;
 		}, $coauthors );
@@ -316,17 +316,22 @@ function coauthor_select_dialog() {
 					</div>
 				</div>
 			</div>
+			<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
+					$options = array( '' => __( 'Choose a role', 'co-authors-plus-roles' ) );
+					foreach( $roles_available as $role ) {
+						$options[ $role->slug ] = $role->name;
+					}
+					$options = apply_filters( 'coauthors_role_options', $options, $post_id );
+					if ( ! empty( $options ) ) : ?>
 			<div id="coauthor-options">
 				<p class="howto"><?php esc_html_e( 'Choose the role for this contributor:', 'co-authors-plus-roles' ); ?></p>
 				<select id="coauthor-select-role" name="coauthor-select-role">
-					<option value="" selected><?php esc_html_e( 'Choose a role', 'co-authors-plus-roles' ); ?></option>
-				<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
-					foreach ( $roles_available as $role ) {
-						echo '<option value="' . esc_attr( $role->slug ) . '">' . esc_html( $role->name ) . '</option>';
-					}
-				?>
+					<?php foreach ( $options as $value => $label ) {
+						echo '<option value="' . esc_attr( $value ) . '">' . esc_html( $label ) . '</option>';
+					} ?>
 				</select>
 			</div>
+			<?php endif; ?>
 			<div class="submitbox">
 				<div id="coauthor-select-cancel">
 					<a class="submitdelete deletion" href="#"><?php esc_html_e( 'Cancel', 'co-authors-plus-roles' ); ?></a>
