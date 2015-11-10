@@ -318,7 +318,7 @@ function coauthor_select_dialog() {
 				</div>
 			</div>
 			<?php $roles_available = apply_filters( 'coauthors_author_roles', get_author_roles(), $post_id );
-					$options = array( '' => esc_html__( 'Choose a role', 'co-authors-plus-roles' ) );
+					$options = array( '' => __( 'Choose a role', 'co-authors-plus-roles' ) );
 					foreach( $roles_available as $role ) {
 						$options[ $role->slug ] = $role->name;
 					}
