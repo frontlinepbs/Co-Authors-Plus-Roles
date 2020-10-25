@@ -385,6 +385,7 @@ function search_coauthors( $search_term, $args = array() ) {
 
 	if ( isset( $args['post_ID'] ) && intval( $args['post_ID'] ) > 0 ) {
 		$existing_authors = get_coauthors( $args['post_ID'], array( 'author_role' => 'any' ) );
+
 	}
 
 	if ( isset( $args['exclude'] ) && count( $args['exclude'] ) > 0 ) {
@@ -398,14 +399,15 @@ function search_coauthors( $search_term, $args = array() ) {
 
 	}
 
-	if ( count( $existing_authors ) ) {
+	/* Removing the below code allows you to select the same author more than once */
+	/* if ( count( $existing_authors ) ) {
 		// Remove array elements from $coauthors that are identical to existing authors.
-		$coauthors = array_udiff( $coauthors, $existing_authors,
+		/*$coauthors = array_udiff( $coauthors, $existing_authors,
 			function( $author, $existing ) {
 				return strcmp( $author->user_nicename, $existing->user_nicename );
 			}
 		);
-	}
+	}*/
 
 	return $coauthors;
 }
@@ -530,6 +532,7 @@ function update_coauthors_on_post( $post_id, $new_coauthors ) {
 
 		// Diff new data against the already added coauthors. If they aren't identical, wipe the old postmeta and re-add.
 		$existing_coauthors = get_coauthors( $post_id, array( 'author_role' => 'any' ) );
+		
 
 		$difference = false;
 		for ( $i=0; $i<=max( count( $new_coauthors ), count( $existing_coauthors ) ); $i++ ) {
