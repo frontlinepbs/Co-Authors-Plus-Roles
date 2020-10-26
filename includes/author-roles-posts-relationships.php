@@ -50,7 +50,7 @@ function set_author_on_post( $post_id, $author, $author_role = false ) {
 	}
 
 	foreach ( get_post_meta( $post_id ) as $key => $values ) {
-		if ( strpos( $key, 'cap-' ) === 0 && in_array( $author->user_nicename, $values ) ) {
+		if ( strpos( $key, 'cap-' ) === 0 && in_array( $author->author_role, $values ) ) {
 			delete_post_meta( $post_id, $key, $author->user_nicename );
 		}
 	}
